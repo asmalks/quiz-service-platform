@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         sans: ['Inter', 'Baloo Chettan 2', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
         display: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        malayalam: ['"Baloo Chettan 2"', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

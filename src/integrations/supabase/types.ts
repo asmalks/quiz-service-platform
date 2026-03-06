@@ -224,6 +224,7 @@ export type Database = {
       quiz_clients: {
         Row: {
           background_color: string | null
+          badge_text: string | null
           created_at: string
           created_by: string | null
           headline: string | null
@@ -239,6 +240,7 @@ export type Database = {
         }
         Insert: {
           background_color?: string | null
+          badge_text?: string | null
           created_at?: string
           created_by?: string | null
           headline?: string | null
@@ -254,6 +256,7 @@ export type Database = {
         }
         Update: {
           background_color?: string | null
+          badge_text?: string | null
           created_at?: string
           created_by?: string | null
           headline?: string | null
@@ -519,6 +522,16 @@ export type Database = {
       reset_client_admin_password: {
         Args: { p_admin_id: string; p_new_password: string }
         Returns: boolean
+      }
+      save_client_quiz: {
+        Args: {
+          p_admin_id: string
+          p_client_id: string
+          p_quiz_id: string | null
+          p_quiz_data: Json
+          p_questions_data: Json
+        }
+        Returns: string
       }
       verify_client_admin_login: {
         Args: { p_email: string; p_password: string }

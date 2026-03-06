@@ -11,6 +11,7 @@ export interface ClientTheme {
     background_color: string;
     headline: string | null;
     subheadline: string | null;
+    badge_text: string | null;
 }
 
 const DEFAULT_THEME: ClientTheme = {
@@ -23,6 +24,7 @@ const DEFAULT_THEME: ClientTheme = {
     background_color: "#ffffff",
     headline: null,
     subheadline: null,
+    badge_text: null,
 };
 
 export function useClientTheme(clientSlug: string | undefined) {
@@ -61,6 +63,7 @@ export function useClientTheme(clientSlug: string | undefined) {
                     background_color: data.background_color || "#ffffff",
                     headline: data.headline,
                     subheadline: data.subheadline,
+                    badge_text: data.badge_text,
                 });
             } catch (err) {
                 setError("Failed to load client theme");

@@ -125,8 +125,21 @@ const ClientCreateQuiz = () => {
     };
 
     const handleSubmit = async (status: "draft" | "published") => {
-        if (!title || !startTime || !endTime) {
+        if (!title.trim() || !startTime || !endTime) {
             toast({ title: "Error", description: "Title, start time and end time are required", variant: "destructive" });
+            return;
+        }
+
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            toast({ title: "Error", description: "Please enter valid dates and times", variant: "destructive" });
+            return;
+        }
+
+        if (start >= end) {
+            toast({ title: "Error", description: "End time must be after start time", variant: "destructive" });
             return;
         }
 
@@ -153,44 +166,25 @@ const ClientCreateQuiz = () => {
                 randomize_options: randomizeOptions,
                 show_leaderboard: showLeaderboard,
                 status,
-                client_id: session.client_id,
-                created_by: createdBy,
             };
 
-            let savedQuizId = quizId;
-
-            if (isEditing) {
-                const { error } = await supabase
-                    .from("quizzes")
-                    .update(quizData)
-                    .eq("id", quizId);
-                if (error) throw error;
-
-                // Delete old questions and re-insert
-                await supabase.from("questions").delete().eq("quiz_id", quizId);
-            } else {
-                const { data, error } = await supabase
-                    .from("quizzes")
-                    .insert([quizData])
-                    .select()
-                    .single();
-                if (error) throw error;
-                savedQuizId = data.id;
-            }
-
-            // Insert questions
             const questionsToInsert = questions.map((q, i) => ({
-                quiz_id: savedQuizId!,
                 question_text: q.question_text,
                 options: q.options,
                 correct_answer: q.correct_answer,
                 order_index: i,
             }));
 
-            const { error: qError } = await supabase
-                .from("questions")
-                .insert(questionsToInsert);
-            if (qError) throw qError;
+            // Use RPC to bypass standard RLS but validate admin session securely
+            const { data: savedQuizId, error: rpcError } = await supabase.rpc("save_client_quiz", {
+                p_admin_id: session.admin_id,
+                p_client_id: session.client_id,
+                p_quiz_id: isEditing ? quizId : null,
+                p_quiz_data: quizData,
+                p_questions_data: questionsToInsert,
+            });
+
+            if (rpcError) throw rpcError;
 
             toast({
                 title: "Success",

@@ -28,6 +28,7 @@ interface QuizClient {
     background_color: string | null;
     headline: string | null;
     subheadline: string | null;
+    badge_text: string | null;
     is_active: boolean | null;
     created_at: string;
 }
@@ -48,6 +49,7 @@ const Clients = () => {
         background_color: "#ffffff",
         headline: "",
         subheadline: "",
+        badge_text: "",
     });
 
     useEffect(() => {
@@ -116,6 +118,7 @@ const Clients = () => {
                     background_color: newClient.background_color,
                     headline: newClient.headline || null,
                     subheadline: newClient.subheadline || null,
+                    badge_text: newClient.badge_text || null,
                     created_by: session.user.id,
                 }])
                 .select()
@@ -133,6 +136,7 @@ const Clients = () => {
                 background_color: "#ffffff",
                 headline: "",
                 subheadline: "",
+                badge_text: "",
             });
             setDialogOpen(false);
             toast({
@@ -286,6 +290,18 @@ const Clients = () => {
                                 />
                             </div>
 
+                            <div className="space-y-2">
+                                <Label htmlFor="client-badge-text">Top Badge Text</Label>
+                                <Input
+                                    id="client-badge-text"
+                                    value={newClient.badge_text}
+                                    onChange={(e) =>
+                                        setNewClient({ ...newClient, badge_text: e.target.value })
+                                    }
+                                    placeholder="e.g. PSC BRO Quiz"
+                                />
+                            </div>
+
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="primary-color">Primary Color</Label>
@@ -370,6 +386,11 @@ const Clients = () => {
                                             onError={(e) => (e.currentTarget.style.display = "none")}
                                         />
                                     )}
+                                    <div className="mb-2">
+                                        <Badge style={{ backgroundColor: newClient.primary_color, color: "#fff" }} className="px-3 py-1 shadow-sm text-xs font-semibold">
+                                            {newClient.badge_text || newClient.name || "Badge Text"}
+                                        </Badge>
+                                    </div>
                                     <h3
                                         style={{ color: newClient.primary_color }}
                                         className="text-xl font-bold"
@@ -430,8 +451,8 @@ const Clients = () => {
                         <Card
                             key={client.id}
                             className={`hover:shadow-lg transition-all duration-300 border-2 ${client.is_active
-                                    ? "hover:border-primary"
-                                    : "opacity-60 border-dashed"
+                                ? "hover:border-primary"
+                                : "opacity-60 border-dashed"
                                 }`}
                         >
                             <CardHeader className="pb-3">

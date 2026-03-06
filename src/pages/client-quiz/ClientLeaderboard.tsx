@@ -83,19 +83,16 @@ const ClientLeaderboardPage = () => {
     }
 
     return (
-        <div className="min-h-screen p-4" style={{ backgroundColor: theme.background_color }}>
+        <div className="min-h-screen p-4 font-malayalam" style={{ backgroundColor: theme.background_color }}>
             <div className="max-w-2xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="text-center space-y-3 py-6">
+                <div className="text-center space-y-3 py-6 animate-fade-in-scale">
                     {theme.logo_url && (
-                        <img src={theme.logo_url} alt={theme.name} className="h-14 mx-auto object-contain" />
+                        <img src={theme.logo_url} alt={theme.name} className="h-16 mx-auto object-contain" />
                     )}
                     <h1 className="text-3xl font-bold" style={{ color: theme.primary_color }}>
                         🏆 Leaderboard
                     </h1>
-                    <p className="text-lg" style={{ color: theme.secondary_color }}>
-                        {quizTitle}
-                    </p>
                 </div>
 
                 {/* Top 3 Podium */}
@@ -160,13 +157,13 @@ const ClientLeaderboardPage = () => {
                         </CardContent>
                     </Card>
                 ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-3 animate-slide-up">
                         {entries.map((entry, index) => {
                             const rank = index + 1;
                             return (
                                 <Card
                                     key={entry.id}
-                                    className="hover:shadow-md transition-shadow"
+                                    className="hover:shadow-lg transition-all hover:scale-[1.01]"
                                     style={rank <= 3 ? { borderColor: theme.primary_color, borderWidth: "1px" } : {}}
                                 >
                                     <CardContent className="flex items-center gap-4 p-4">

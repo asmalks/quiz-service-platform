@@ -117,31 +117,31 @@ const ClientResults = () => {
     const scorePercent = (result.participant.total_score / result.totalQuestions) * 100;
 
     return (
-        <div className="min-h-screen p-4" style={{ backgroundColor: theme.background_color }}>
+        <div className="min-h-screen p-4 font-malayalam" style={{ backgroundColor: theme.background_color }}>
             {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={300} />}
 
             <div className="max-w-2xl mx-auto space-y-6">
                 {/* Header */}
-                <div className="text-center space-y-3">
+                <div className="text-center space-y-3 animate-fade-in-scale">
                     {theme.logo_url && (
-                        <img src={theme.logo_url} alt={theme.name} className="h-12 mx-auto object-contain" />
+                        <img src={theme.logo_url} alt={theme.name} className="h-16 mx-auto object-contain" />
                     )}
-                    <h1 className="text-2xl font-bold" style={{ color: theme.primary_color }}>
+                    <h1 className="text-3xl font-bold" style={{ color: theme.primary_color }}>
                         Quiz Results
                     </h1>
-                    <p className="text-muted-foreground">{result.participant.name}</p>
                 </div>
 
                 {/* Score Card */}
-                <Card style={{ borderColor: theme.primary_color, borderWidth: "2px" }}>
-                    <CardContent className="p-6 text-center space-y-4">
-                        <div className="text-6xl font-bold" style={{ color: theme.primary_color }}>
-                            {result.participant.total_score}/{result.totalQuestions}
+                <Card className="shadow-2xl animate-slide-up transition-all hover:scale-[1.01]" style={{ borderColor: theme.primary_color, borderWidth: "2px" }}>
+                    <CardContent className="p-8 text-center space-y-6">
+                        <div className="text-7xl font-bold drop-shadow-sm" style={{ color: theme.primary_color }}>
+                            {result.participant.total_score}
+                            <span className="text-3xl text-muted-foreground">/{result.totalQuestions}</span>
                         </div>
-                        <p className="text-lg">
-                            {scorePercent >= 80 ? "🎉 Excellent!" : scorePercent >= 60 ? "👍 Good Job!" : scorePercent >= 40 ? "📚 Keep Studying!" : "💪 Don't Give Up!"}
+                        <p className="text-xl font-medium">
+                            {scorePercent >= 80 ? "🎉 Outstanding Performance!" : scorePercent >= 60 ? "👍 Great Job!" : scorePercent >= 40 ? "📚 Keep Studying!" : "💪 Don't Give Up!"}
                         </p>
-                        <div className="flex justify-center gap-6 text-sm">
+                        <div className="flex justify-center gap-8 text-base bg-secondary/20 p-4 rounded-xl">
                             <div className="flex items-center gap-1">
                                 <Trophy className="h-4 w-4" style={{ color: theme.primary_color }} />
                                 <span>Score: {result.participant.total_score}</span>
@@ -167,9 +167,9 @@ const ClientResults = () => {
                 </Card>
 
                 {/* Questions Review */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-lg">Question Review</CardTitle>
+                <Card className="shadow-xl animate-fade-in" style={{ animationDelay: "200ms" }}>
+                    <CardHeader className="bg-secondary/10 border-b">
+                        <CardTitle className="text-xl">Question Review</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {result.questions.map((q, index) => (

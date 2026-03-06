@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import {
-    Loader2, Save, ArrowLeft, Trash2, UserPlus, KeyRound, Eye, ClipboardList,
+    Loader2, Save, ArrowLeft, Trash2, UserPlus, KeyRound, Eye, ClipboardList, Copy
 } from "lucide-react";
 import {
     Dialog,
@@ -30,6 +30,7 @@ interface QuizClient {
     background_color: string | null;
     headline: string | null;
     subheadline: string | null;
+    badge_text: string | null;
     is_active: boolean | null;
     created_at: string;
 }
@@ -132,6 +133,7 @@ const ClientDetail = () => {
                     background_color: client.background_color,
                     headline: client.headline,
                     subheadline: client.subheadline,
+                    badge_text: client.badge_text,
                 })
                 .eq("id", client.id);
 
@@ -191,7 +193,7 @@ const ClientDetail = () => {
                 title: "Error",
                 description: error.message?.includes("duplicate")
                     ? "An admin with this email already exists"
-                    : "Failed to create admin",
+                    : error.message || "Failed to create admin",
                 variant: "destructive",
             });
         } finally {
@@ -225,6 +227,16 @@ const ClientDetail = () => {
                 variant: "destructive",
             });
         }
+    };
+
+    const copyLoginLink = (email: string) => {
+        const loginUrl = `${window.location.origin}/client/login`;
+        const textToCopy = `Admin Login URL: ${loginUrl}\nEmail: ${email}`;
+        navigator.clipboard.writeText(textToCopy);
+        toast({
+            title: "Copied!",
+            description: "Login link and email copied to clipboard",
+        });
     };
 
     const deleteQuiz = async (quizId: string) => {
@@ -334,6 +346,17 @@ const ClientDetail = () => {
                         />
                     </div>
 
+                    <div className="space-y-2">
+                        <Label>Top Badge Text</Label>
+                        <Input
+                            value={client.badge_text || ""}
+                            onChange={(e) =>
+                                setClient({ ...client, badge_text: e.target.value || null })
+                            }
+                            placeholder="e.g. PSC BRO Quiz"
+                        />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Headline</Label>
@@ -438,6 +461,11 @@ const ClientDetail = () => {
                                     onError={(e) => (e.currentTarget.style.display = "none")}
                                 />
                             )}
+                            <div className="mb-2">
+                                <Badge style={{ backgroundColor: client.primary_color || "#6366f1", color: "#fff" }} className="px-3 py-1 shadow-sm text-xs font-semibold">
+                                    {client.badge_text || client.name}
+                                </Badge>
+                            </div>
                             <h3
                                 style={{ color: client.primary_color || "#6366f1" }}
                                 className="text-xl font-bold"
@@ -540,10 +568,19 @@ const ClientDetail = () => {
                                         <Button
                                             variant="outline"
                                             size="sm"
+                                            onClick={() => copyLoginLink(admin.email)}
+                                            title="Copy Login Details"
+                                        >
+                                            <Copy className="h-3 w-3" />
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
                                             onClick={() => {
                                                 setResetAdminId(admin.id);
                                                 setResetDialogOpen(true);
                                             }}
+                                            title="Reset Password"
                                         >
                                             <KeyRound className="h-3 w-3" />
                                         </Button>

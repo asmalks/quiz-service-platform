@@ -188,9 +188,9 @@ const ClientTake = () => {
     const progress = ((currentQ + 1) / questions.length) * 100;
 
     return (
-        <div className="min-h-screen flex flex-col" style={{ backgroundColor: theme.background_color }}>
+        <div className="min-h-screen flex flex-col font-malayalam" style={{ backgroundColor: theme.background_color }}>
             {/* Header */}
-            <div className="p-4 flex items-center justify-between" style={{ borderBottom: `2px solid ${theme.primary_color}20` }}>
+            <div className="p-4 flex items-center justify-between shadow-sm bg-white/40 backdrop-blur-md" style={{ borderBottom: `2px solid ${theme.primary_color}20` }}>
                 <div className="flex items-center gap-3">
                     {theme.logo_url && (
                         <img src={theme.logo_url} alt={theme.name} className="h-8 object-contain" />
@@ -215,9 +215,9 @@ const ClientTake = () => {
 
             {/* Question */}
             <div className="flex-1 flex items-center justify-center p-4">
-                <Card className="w-full max-w-2xl shadow-lg" style={{ borderColor: `${theme.primary_color}40` }}>
+                <Card key={currentQ} className="w-full max-w-2xl shadow-2xl animate-fade-in" style={{ borderColor: theme.primary_color, borderWidth: "2px" }}>
                     <CardContent className="p-6 space-y-6">
-                        <h2 className="text-xl font-semibold leading-relaxed">{currentQuestion.question_text}</h2>
+                        <h2 className="text-2xl font-bold leading-relaxed">{currentQuestion.question_text}</h2>
 
                         <div className="grid gap-3">
                             {(["A", "B", "C", "D"] as const).map((key) => (
@@ -225,8 +225,8 @@ const ClientTake = () => {
                                     key={key}
                                     onClick={() => setSelectedAnswer(key)}
                                     className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 ${selectedAnswer === key
-                                            ? "text-white shadow-lg scale-[1.02]"
-                                            : "hover:border-opacity-50 bg-white"
+                                        ? "text-white shadow-lg scale-[1.02]"
+                                        : "hover:border-opacity-50 bg-white"
                                         }`}
                                     style={
                                         selectedAnswer === key

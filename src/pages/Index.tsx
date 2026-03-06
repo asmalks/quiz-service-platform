@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Trophy, Clock, Users, Brain, Award, Zap, Target, Loader2, X, ExternalLink, Instagram, Youtube, MessageCircle, Send, Heart, Sparkles, BookOpen, Bell, Star, ArrowRight } from "lucide-react";
+import { Trophy, Clock, Users, Brain, Award, Zap, Target, Loader2, X, ExternalLink, Instagram, Youtube, MessageCircle, Send, Heart, Sparkles, BookOpen, Bell, Star, ArrowRight, Mail } from "lucide-react";
 import { ScrollReveal } from "@/hooks/use-scroll-reveal";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +33,8 @@ const Index = () => {
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
   const [contactForm, setContactForm] = useState({ name: "", email: "", message: "" });
   const [submittingContact, setSubmittingContact] = useState(false);
+  const [showQuizModal, setShowQuizModal] = useState(false);
+  const [quizIdInput, setQuizIdInput] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -110,14 +112,24 @@ const Index = () => {
   };
 
   const handleTakeQuiz = () => {
-    if (todayQuizId) {
-      navigate(`/quiz/${todayQuizId}`);
-    } else {
+    const trimmedId = quizIdInput.trim();
+    if (!trimmedId) {
       toast({
-        title: "No Active Quiz",
-        description: "There's no quiz available right now. Please check back later!",
+        title: "Quiz ID Required",
+        description: "Please enter a valid Quiz ID to join.",
         variant: "destructive",
       });
+      return;
+    }
+    setShowQuizModal(false);
+    setQuizIdInput("");
+    navigate(`/quiz/${trimmedId}`);
+  };
+
+  const scrollToContact = () => {
+    const contactSection = document.getElementById("contact-section");
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -202,20 +214,20 @@ const Index = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
-              Live Daily Quizzes
+              Quiz as a Service Platform
             </span>
           </div>
 
           {/* Title - Hardcoded */}
           <h1 className="animate-slide-up text-6xl sm:text-7xl lg:text-8xl font-black tracking-tight mb-6">
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              PSC BRO
+              QQuiz
             </span>
           </h1>
 
           {/* Subtitle - Hardcoded */}
           <p className="animate-slide-up text-xl sm:text-2xl text-muted-foreground font-medium mb-10 max-w-2xl mx-auto" style={{ animationDelay: '0.1s' }}>
-            Master PSC Exams with Daily Challenges
+            Host, Brand & Conduct Quizzes for Any Organization
           </p>
 
           {/* CTA Buttons */}
@@ -223,48 +235,71 @@ const Index = () => {
             <Button
               size="lg"
               className="group gradient-primary hover:opacity-90 text-primary-foreground px-8 py-6 text-lg font-semibold rounded-full shadow-2xl shadow-primary/30 transition-all duration-300"
-              onClick={handleTakeQuiz}
+              onClick={() => setShowQuizModal(true)}
             >
-              {loadingQuiz ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Loading...
-                </>
-              ) : (
-                <>
-                  Start Quiz
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
+              Start Quiz
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Link to="/leaderboard">
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-2 border-foreground/20 hover:border-foreground/40 hover:bg-foreground/5 px-8 py-6 text-lg font-semibold rounded-full transition-all duration-300"
-              >
-                <Trophy className="mr-2 h-5 w-5" />
-                Leaderboard
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-2 border-foreground/20 hover:border-foreground/40 hover:bg-foreground/5 px-8 py-6 text-lg font-semibold rounded-full transition-all duration-300"
+              onClick={scrollToContact}
+            >
+              <Mail className="mr-2 h-5 w-5" />
+              Contact Us
+            </Button>
           </div>
+
+          {/* Quiz ID Modal */}
+          {showQuizModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowQuizModal(false)}>
+              <div className="bg-card rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4 space-y-4" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-foreground">Join a Quiz</h3>
+                  <button onClick={() => setShowQuizModal(false)} className="text-muted-foreground hover:text-foreground">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Enter the Quiz ID shared by your organizer to join the quiz.
+                </p>
+                <Input
+                  value={quizIdInput}
+                  onChange={(e) => setQuizIdInput(e.target.value)}
+                  placeholder="Enter Quiz ID"
+                  className="h-12 text-base rounded-xl"
+                  autoFocus
+                  onKeyDown={(e) => e.key === "Enter" && handleTakeQuiz()}
+                />
+                <Button
+                  className="w-full h-12 gradient-primary text-primary-foreground rounded-xl font-semibold hover:opacity-90 transition-opacity"
+                  onClick={handleTakeQuiz}
+                >
+                  <ArrowRight className="mr-2 h-5 w-5" />
+                  Join Quiz
+                </Button>
+              </div>
+            </div>
+          )}
+
 
           {/* Schedule - Hardcoded */}
           <div className="animate-slide-up inline-flex items-center gap-3 px-6 py-3 bg-card/50 backdrop-blur-sm border border-border rounded-full" style={{ animationDelay: '0.3s' }}>
             <Clock className="w-5 h-5 text-primary" />
-            <span className="font-bold text-foreground">Daily at 8 PM</span>
+            <span className="font-bold text-foreground">Launch Quizzes Anytime</span>
           </div>
 
           {/* Quick Stats */}
           <div className="animate-slide-up flex items-center justify-center gap-8 mt-16 text-sm text-muted-foreground" style={{ animationDelay: '0.4s' }}>
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-primary" />
-              <span>70K+ Members</span>
+              <span>Multi-Client Support</span>
             </div>
             <div className="w-1 h-1 rounded-full bg-border" />
             <div className="flex items-center gap-1">
               <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-              <span>5.0 Rating</span>
+              <span>Custom Branding</span>
             </div>
           </div>
         </div>
@@ -276,10 +311,10 @@ const Index = () => {
           <ScrollReveal>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
-                { icon: Instagram, label: "Instagram Family", value: "70K+", color: "from-pink-500 to-rose-500" },
-                { icon: MessageCircle, label: "WhatsApp Groups", value: "5+", color: "from-green-500 to-emerald-500" },
-                { icon: Users, label: "Community Members", value: "5000+", color: "from-blue-500 to-indigo-500" },
-                { icon: Trophy, label: "Daily Winners", value: "100+", color: "from-amber-500 to-orange-500" },
+                { icon: Users, label: "Organizations Served", value: "∞", color: "from-pink-500 to-rose-500" },
+                { icon: Brain, label: "Custom Branded Quizzes", value: "Unlimited", color: "from-green-500 to-emerald-500" },
+                { icon: Target, label: "Real-time Leaderboards", value: "Live", color: "from-blue-500 to-indigo-500" },
+                { icon: Trophy, label: "Anti-Cheat Protected", value: "100%", color: "from-amber-500 to-orange-500" },
               ].map((stat, idx) => (
                 <ScrollReveal key={idx} delay={idx * 0.1} direction="up">
                   <div className="text-center p-6 group">
@@ -301,10 +336,10 @@ const Index = () => {
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center mb-16 space-y-4">
             <Badge className="badge-pill bg-accent/10 text-accent border-accent/20 hover:bg-accent/10">
-              Our Story
+              About QQuiz
             </Badge>
             <h2 className="text-4xl sm:text-5xl font-bold text-foreground">
-              Who We Are
+              What We Do
             </h2>
           </ScrollReveal>
 
@@ -317,10 +352,10 @@ const Index = () => {
                     <Heart className="w-7 h-7 text-primary-foreground" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-foreground mb-4">Built by Aspirants, for Aspirants</h3>
+                    <h3 className="text-2xl font-bold text-foreground mb-4">Your Platform, Your Brand, Your Quiz</h3>
                     <p className="text-muted-foreground leading-relaxed">
-                      PSC BRO started as a small Instagram page and grew into Kerala's most active PSC preparation community.
-                      We share daily current affairs, study materials, exam notifications, syllabus updates, and results — all completely free.
+                      QQuiz is a quiz-as-a-service platform that lets colleges, coaching institutes, companies, and influencers
+                      run their own branded quiz competitions — with custom logos, colors, leaderboards, and isolated admin access.
                     </p>
                   </div>
                   <div className="pt-4 border-t border-border">
@@ -330,7 +365,7 @@ const Index = () => {
                           <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent border-2 border-card" />
                         ))}
                       </div>
-                      <span className="text-sm text-muted-foreground">Join 70K+ aspirants</span>
+                      <span className="text-sm text-muted-foreground">Trusted by organizations everywhere</span>
                     </div>
                   </div>
                 </CardContent>
@@ -340,10 +375,10 @@ const Index = () => {
             {/* Right - Feature Cards */}
             <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: Zap, title: "Daily Updates", desc: "Current affairs & study materials", color: "from-blue-400 to-indigo-500" },
-                { icon: Bell, title: "Notifications", desc: "Exam alerts & results", color: "from-violet-400 to-purple-500" },
-                { icon: Trophy, title: "Competitions", desc: "Daily quiz with prizes", color: "from-amber-400 to-orange-500" },
-                { icon: BookOpen, title: "Free Resources", desc: "100% community driven", color: "from-green-400 to-emerald-500" },
+                { icon: Zap, title: "Instant Setup", desc: "Create quizzes in minutes", color: "from-blue-400 to-indigo-500" },
+                { icon: Bell, title: "Custom Branding", desc: "Your logo, your colors", color: "from-violet-400 to-purple-500" },
+                { icon: Trophy, title: "Live Leaderboards", desc: "Real-time competition", color: "from-amber-400 to-orange-500" },
+                { icon: BookOpen, title: "Client Admin", desc: "Dedicated control panel", color: "from-green-400 to-emerald-500" },
               ].map((item, idx) => (
                 <ScrollReveal key={idx} delay={0.2 + idx * 0.1} direction="scale">
                   <Card className="card-premium hover-lift h-full">
@@ -372,10 +407,10 @@ const Index = () => {
               Our Features
             </Badge>
             <h2 className="text-4xl sm:text-5xl font-bold text-foreground">
-              Why Choose PSC BRO?
+              Why Choose QQuiz?
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to ace your PSC exams with confidence
+              Everything you need to run professional quiz competitions
             </p>
           </ScrollReveal>
 
@@ -383,38 +418,38 @@ const Index = () => {
             {[
               {
                 icon: Clock,
-                title: "Daily Fresh Quizzes",
-                description: "New challenges every day with time-bound questions to sharpen your speed.",
+                title: "Timed Quiz Engine",
+                description: "Set per-question timers with automatic submission. Keep your participants on their toes.",
                 color: "from-blue-500 to-indigo-600",
               },
               {
                 icon: Trophy,
-                title: "Real-time Leaderboard",
-                description: "Compete with thousands and track your ranking instantly.",
+                title: "Live Leaderboards",
+                description: "Instant ranking by score and time. Share branded leaderboard links with participants.",
                 color: "from-amber-500 to-orange-600",
               },
               {
                 icon: Target,
-                title: "Exam-Focused Content",
-                description: "Questions curated specifically for Kerala PSC exams.",
+                title: "Custom Branding",
+                description: "Your logo, colors, headline — every quiz page is fully branded to your organization.",
                 color: "from-blue-500 to-cyan-600",
               },
               {
                 icon: Award,
-                title: "Rewards & Recognition",
-                description: "Top performers win prizes and get featured in our Hall of Fame.",
+                title: "Client Admin Panel",
+                description: "Each organization gets their own admin dashboard to create quizzes and manage content.",
                 color: "from-pink-500 to-rose-600",
               },
               {
                 icon: Zap,
-                title: "Instant Results",
-                description: "Get immediate feedback with detailed explanations.",
+                title: "Anti-Cheat System",
+                description: "Device fingerprinting, server-side validation, and duplicate detection built in.",
                 color: "from-green-500 to-emerald-600",
               },
               {
                 icon: Brain,
-                title: "Topic-wise Practice",
-                description: "Master specific subjects with our practice library.",
+                title: "Multi-Client Platform",
+                description: "Run quizzes for multiple organizations simultaneously with isolated data and branding.",
                 color: "from-indigo-500 to-violet-600",
               },
             ].map((feature, idx) => (
@@ -486,64 +521,11 @@ const Index = () => {
         </section>
       )}
 
-      {/* Join Community Section */}
-      <section className="py-12 sm:py-16 lg:py-20 px-6 sm:px-6 lg:px-8">
-        <ScrollReveal>
-          <div className="max-w-4xl mx-auto">
-            <Card className="card-premium overflow-hidden border-0 shadow-xl">
-              <CardContent className="p-0">
-                <div className="gradient-primary p-8 sm:p-12 text-center space-y-6 sm:space-y-8">
-                  <h2 className="text-3xl sm:text-4xl font-bold text-primary-foreground">
-                    Join Our Community
-                  </h2>
-                  <p className="text-lg text-primary-foreground/90 max-w-xl mx-auto">
-                    Connect with 70,000+ PSC aspirants. Get daily updates, study materials, and compete in quizzes!
-                  </p>
-
-                  <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
-                    <a
-                      href="https://instagram.com/pscbro"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full sm:w-auto"
-                    >
-                      <Button size="lg" className="w-full sm:w-auto min-w-[140px] bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm rounded-xl h-12">
-                        <Instagram className="w-5 h-5 mr-2" />
-                        Instagram
-                      </Button>
-                    </a>
-                    <a
-                      href="https://chat.whatsapp.com/pscbro"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full sm:w-auto"
-                    >
-                      <Button size="lg" className="w-full sm:w-auto min-w-[140px] bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm rounded-xl h-12">
-                        <MessageCircle className="w-5 h-5 mr-2" />
-                        WhatsApp
-                      </Button>
-                    </a>
-                    <a
-                      href="https://youtube.com/@pscbro"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full sm:w-auto"
-                    >
-                      <Button size="lg" className="w-full sm:w-auto min-w-[140px] bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm rounded-xl h-12">
-                        <Youtube className="w-5 h-5 mr-2" />
-                        YouTube
-                      </Button>
-                    </a>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </ScrollReveal>
-      </section>
+      {/* Join Community Section - HIDDEN (no social accounts yet) */}
+      {/* Will be re-enabled when social media accounts are created */}
 
       {/* Contact Form Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-secondary/30">
+      <section id="contact-section" className="py-24 px-4 sm:px-6 lg:px-8 bg-secondary/30">
         <div className="max-w-xl mx-auto">
           <ScrollReveal className="text-center mb-10 space-y-4">
             <Badge className="badge-pill bg-primary/10 text-primary border-primary/20 hover:bg-primary/10">
@@ -553,7 +535,7 @@ const Index = () => {
               Share Your Thoughts
             </h2>
             <p className="text-muted-foreground">
-              Have ideas, feedback, or suggestions? We'd love to hear from you!
+              Want to run quizzes for your organization? Have feedback? Let us know!
             </p>
           </ScrollReveal>
 
@@ -625,13 +607,13 @@ const Index = () => {
       <footer className="bg-card border-t border-border py-10 px-4">
         <div className="max-w-6xl mx-auto text-center space-y-4">
           <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            PSC BRO
+            QQuiz
           </h3>
           <p className="text-sm text-muted-foreground">
-            © 2025 PSC BRO. All rights reserved.
+            © 2026 QQuiz. All rights reserved.
           </p>
           <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
-            Developed by <span className="font-medium text-foreground">Darvesh</span> with <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+            Built with <Heart className="w-4 h-4 text-red-500 fill-red-500" />
           </p>
         </div>
       </footer>

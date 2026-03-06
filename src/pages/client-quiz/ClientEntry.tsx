@@ -32,7 +32,6 @@ const ClientEntry = () => {
     const [name, setName] = useState("");
     const [whatsapp, setWhatsapp] = useState("");
     const [city, setCity] = useState("");
-    const [examTarget, setExamTarget] = useState("");
     const [fingerprint, setFingerprint] = useState<string | null>(null);
     const [alreadyParticipated, setAlreadyParticipated] = useState(false);
 
@@ -114,7 +113,6 @@ const ClientEntry = () => {
                     name,
                     whatsapp: whatsapp || null,
                     city: city || null,
-                    exam_target: examTarget || null,
                     device_fingerprint: fingerprint,
                 }])
                 .select()
@@ -165,44 +163,63 @@ const ClientEntry = () => {
     const quizActive = quizStarted && !quizEnded && quiz?.status === "published";
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: theme.background_color }}>
-            <Card className="w-full max-w-lg shadow-xl" style={{ borderColor: theme.primary_color, borderWidth: "2px" }}>
-                <CardHeader className="text-center space-y-3">
+        <div className="min-h-screen flex items-center justify-center p-4 font-malayalam" style={{ backgroundColor: theme.background_color }}>
+            <Card className="w-full max-w-md shadow-2xl transition-all duration-300 hover:shadow-glow" style={{ borderColor: theme.primary_color, borderWidth: "2px" }}>
+                <CardHeader className="text-center space-y-4">
                     {theme.logo_url && (
-                        <img src={theme.logo_url} alt={theme.name} className="h-14 mx-auto object-contain" onError={(e) => (e.currentTarget.style.display = "none")} />
+                        <img src={theme.logo_url} alt={theme.name} className="h-16 mx-auto object-contain animate-fade-in-scale" onError={(e) => (e.currentTarget.style.display = "none")} />
                     )}
-                    <div>
-                        <h1 className="text-2xl font-bold" style={{ color: theme.primary_color }}>
+                    <div className="space-y-2">
+                        <Badge style={{ backgroundColor: theme.primary_color, color: "#fff" }} className="mb-2 px-3 py-1 shadow-sm animate-fade-in text-xs font-semibold">
+                            {theme.badge_text || theme.name}
+                        </Badge>
+                        <h1 className="text-3xl font-bold animate-slide-up leading-tight" style={{ color: theme.primary_color }}>
                             {theme.headline || theme.name}
                         </h1>
                         {theme.subheadline && (
-                            <p className="text-sm mt-1" style={{ color: theme.secondary_color }}>
+                            <p className="text-sm mt-2 animate-slide-up" style={{ color: theme.secondary_color, animationDelay: "100ms" }}>
                                 {theme.subheadline}
                             </p>
                         )}
                     </div>
-                    {quiz && (
-                        <div>
-                            <h2 className="text-lg font-semibold">{quiz.title}</h2>
-                            {quiz.description && <p className="text-sm text-muted-foreground">{quiz.description}</p>}
+
+                    <div className="grid grid-cols-3 gap-3 pt-4">
+                        <div className="text-center p-3 rounded-lg bg-secondary/50 transition-all duration-300 hover:scale-105 hover:bg-primary/10 hover:shadow-md cursor-pointer group">
+                            <Brain className="w-5 h-5 mx-auto mb-1 transition-transform duration-300 group-hover:scale-110" style={{ color: theme.primary_color }} />
+                            <p className="text-xs text-muted-foreground">Test Your</p>
+                            <p className="text-sm font-semibold">Knowledge</p>
                         </div>
-                    )}
+                        <div className="text-center p-3 rounded-lg bg-secondary/50 transition-all duration-300 hover:scale-105 hover:bg-accent/10 hover:shadow-md cursor-pointer group">
+                            <Clock className="w-5 h-5 mx-auto mb-1 text-accent transition-transform duration-300 group-hover:scale-110" />
+                            <p className="text-xs text-muted-foreground">Timed</p>
+                            <p className="text-sm font-semibold">Challenge</p>
+                        </div>
+                        <div className="text-center p-3 rounded-lg bg-secondary/50 transition-all duration-300 hover:scale-105 hover:bg-primary-light/10 hover:shadow-md cursor-pointer group">
+                            <Users className="w-5 h-5 mx-auto mb-1 transition-transform duration-300 group-hover:scale-110" style={{ color: theme.secondary_color }} />
+                            <p className="text-xs text-muted-foreground">Compete</p>
+                            <p className="text-sm font-semibold">& Win</p>
+                        </div>
+                    </div>
                 </CardHeader>
 
                 <CardContent>
                     {alreadyParticipated ? (
-                        <div className="text-center py-4">
-                            <AlertTriangle className="h-10 w-10 text-yellow-500 mx-auto mb-3" />
-                            <h3 className="font-semibold text-lg">Already Participated</h3>
-                            <p className="text-sm text-muted-foreground">You have already completed this quiz.</p>
-                            <Button className="mt-4" style={{ backgroundColor: theme.primary_color }} onClick={() => navigate(`/leaderboard/${clientSlug}/${quizId}`)}>
+                        <div className="text-center py-6 animate-fade-in">
+                            <div className="mx-auto w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mb-4">
+                                <AlertTriangle className="w-8 h-8 text-amber-600" />
+                            </div>
+                            <h3 className="font-semibold text-xl mb-2">Already Participated</h3>
+                            <p className="text-sm text-muted-foreground mb-6">You have already completed this quiz.</p>
+                            <Button className="w-full text-white py-6 text-lg" style={{ backgroundColor: theme.primary_color }} onClick={() => navigate(`/leaderboard/${clientSlug}/${quizId}`)}>
                                 View Leaderboard
                             </Button>
                         </div>
                     ) : !quizActive ? (
-                        <div className="text-center py-4">
-                            <Clock className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                            <h3 className="font-semibold text-lg">
+                        <div className="text-center py-6 animate-fade-in">
+                            <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: `${theme.primary_color}20` }}>
+                                <Clock className="h-8 w-8" style={{ color: theme.primary_color }} />
+                            </div>
+                            <h3 className="font-semibold text-xl mb-2">
                                 {quizEnded ? "Quiz Has Ended" : "Quiz Not Started Yet"}
                             </h3>
                             {quiz && !quizStarted && (
@@ -212,29 +229,28 @@ const ClientEntry = () => {
                             )}
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-4 animate-slide-up" style={{ animationDelay: "200ms" }}>
                             <div className="space-y-2">
-                                <Label>Name *</Label>
-                                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your full name" required />
+                                <Label className="font-semibold">Full Name *</Label>
+                                <Input className="h-12" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your full name" required />
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-2 hidden">
                                 <Label>WhatsApp Number</Label>
-                                <Input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="Your WhatsApp number" />
+                                <Input className="h-12" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="Your WhatsApp number" />
                             </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="space-y-2">
-                                    <Label>City</Label>
-                                    <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Your city" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Target Exam</Label>
-                                    <Input value={examTarget} onChange={(e) => setExamTarget(e.target.value)} placeholder="e.g. PSC" />
-                                </div>
+                            <div className="space-y-2">
+                                <Label className="font-semibold">Location / City (Optional)</Label>
+                                <Input className="h-12" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Where are you from?" />
                             </div>
-                            <Button type="submit" className="w-full text-white" style={{ backgroundColor: theme.primary_color }} disabled={submitting}>
-                                {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Brain className="mr-2 h-4 w-4" />}
+
+                            <Button type="submit" className="w-full h-14 text-white text-lg mt-6 shadow-md transition-all hover:scale-[1.02]" style={{ backgroundColor: theme.primary_color }} disabled={submitting}>
+                                {submitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Brain className="mr-2 h-5 w-5" />}
                                 Start Quiz
                             </Button>
+
+                            <p className="text-xs text-center text-muted-foreground mt-4">
+                                By starting the quiz, you agree to our terms and conditions
+                            </p>
                         </form>
                     )}
                 </CardContent>
