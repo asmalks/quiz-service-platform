@@ -1,4 +1,4 @@
-import { LayoutDashboard, ClipboardList, Trophy, BarChart3, Settings, LogOut, MessageSquare } from "lucide-react";
+import { LayoutDashboard, ClipboardList, Trophy, BarChart3, Settings, LogOut, MessageSquare, Globe } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +22,7 @@ const menuItems = [
   { title: "Leaderboard", url: "/admin/leaderboard", icon: Trophy },
   { title: "Messages", url: "/admin/messages", icon: MessageSquare },
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
+  { title: "Clients", url: "/admin/clients", icon: Globe },
   { title: "Settings", url: "/admin/settings", icon: Settings },
 ];
 
@@ -59,7 +60,7 @@ export function AdminSidebar() {
         <div className="p-4 border-b border-border">
           {!isCollapsed && (
             <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              PSC BRO Admin
+              Quiz Service Admin
             </h2>
           )}
         </div>

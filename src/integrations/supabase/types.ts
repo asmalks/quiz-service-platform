@@ -35,6 +35,44 @@ export type Database = {
         }
         Relationships: []
       }
+      client_admins: {
+        Row: {
+          client_id: string
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean | null
+          password_hash: string
+          role: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean | null
+          password_hash: string
+          role?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          password_hash?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_admins_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           created_at: string
@@ -183,13 +221,64 @@ export type Database = {
           },
         ]
       }
+      quiz_clients: {
+        Row: {
+          background_color: string | null
+          created_at: string
+          created_by: string | null
+          headline: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          primary_color: string | null
+          secondary_color: string | null
+          slug: string
+          subheadline: string | null
+          updated_at: string
+        }
+        Insert: {
+          background_color?: string | null
+          created_at?: string
+          created_by?: string | null
+          headline?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug: string
+          subheadline?: string | null
+          updated_at?: string
+        }
+        Update: {
+          background_color?: string | null
+          created_at?: string
+          created_by?: string | null
+          headline?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug?: string
+          subheadline?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       quizzes: {
         Row: {
+          access_code: string | null
+          client_id: string | null
           created_at: string
           created_by: string
           description: string | null
           end_time: string
           id: string
+          is_private: boolean | null
           randomize_options: boolean | null
           randomize_questions: boolean | null
           show_leaderboard: boolean | null
@@ -201,11 +290,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_code?: string | null
+          client_id?: string | null
           created_at?: string
           created_by: string
           description?: string | null
           end_time: string
           id?: string
+          is_private?: boolean | null
           randomize_options?: boolean | null
           randomize_questions?: boolean | null
           show_leaderboard?: boolean | null
@@ -217,11 +309,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_code?: string | null
+          client_id?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
           end_time?: string
           id?: string
+          is_private?: boolean | null
           randomize_options?: boolean | null
           randomize_questions?: boolean | null
           show_leaderboard?: boolean | null
@@ -233,6 +328,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "quizzes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "quizzes_sponsor_id_fkey"
             columns: ["sponsor_id"]
@@ -409,7 +511,26 @@ export type Database = {
       }
     }
     Functions: {
+      create_client_admin: {
+        Args: { p_client_id: string; p_email: string; p_password: string }
+        Returns: string
+      }
       is_admin: { Args: { user_id: string }; Returns: boolean }
+      reset_client_admin_password: {
+        Args: { p_admin_id: string; p_new_password: string }
+        Returns: boolean
+      }
+      verify_client_admin_login: {
+        Args: { p_email: string; p_password: string }
+        Returns: {
+          admin_id: string
+          admin_client_id: string
+          admin_email: string
+          admin_role: string
+          client_name: string
+          client_slug: string
+        }[]
+      }
     }
     Enums: {
       admin_role: "super_admin" | "admin" | "moderator"
