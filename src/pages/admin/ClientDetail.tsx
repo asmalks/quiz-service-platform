@@ -353,7 +353,7 @@ const ClientDetail = () => {
                             onChange={(e) =>
                                 setClient({ ...client, badge_text: e.target.value || null })
                             }
-                            placeholder="e.g. PSC BRO Quiz"
+                            placeholder="e.g. QQuiz"
                         />
                     </div>
 

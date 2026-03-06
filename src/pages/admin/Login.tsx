@@ -25,7 +25,7 @@ const AdminLogin = () => {
   const checkIfAdmin = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (session?.user) {
         const { data: adminData } = await supabase
           .from("admins")
@@ -118,7 +118,7 @@ const AdminLogin = () => {
           <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg">
             <Shield className="w-8 h-8 text-white" />
           </div>
-          <CardTitle className="text-3xl font-bold">PSC BRO Admin</CardTitle>
+          <CardTitle className="text-3xl font-bold">QQuiz Admin</CardTitle>
           <CardDescription>Access the admin dashboard</CardDescription>
         </CardHeader>
         <CardContent>

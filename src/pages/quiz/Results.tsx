@@ -102,7 +102,7 @@ const QuizResults = () => {
 
   const handleShare = () => {
     if (results) {
-      const text = `I scored ${results.participant.total_score}/${results.totalQuestions} in PSC BRO Quiz! 🎯\n\nTime taken: ${results.participant.total_time_taken}s\n\nJoin me: ${window.location.origin}`;
+      const text = `I scored ${results.participant.total_score}/${results.totalQuestions} in QQuiz! 🎯\n\nTime taken: ${results.participant.total_time_taken}s\n\nJoin me: ${window.location.origin}`;
 
       if (navigator.share) {
         navigator.share({ text });
@@ -121,11 +121,11 @@ const QuizResults = () => {
       const percentage = (results.participant.total_score / results.totalQuestions) * 100;
       const emoji = percentage >= 80 ? "🏆" : percentage >= 60 ? "🌟" : "💪";
 
-      const text = `${emoji} I just completed PSC BRO Quiz!\n\n` +
+      const text = `${emoji} I just completed QQuiz!\n\n` +
         `📊 Score: ${results.participant.total_score}/${results.totalQuestions} (${percentage.toFixed(0)}%)\n` +
         `⏱️ Time: ${results.participant.total_time_taken}s\n\n` +
         `Check out the leaderboard: ${window.location.origin}/leaderboard/${quizId}\n\n` +
-        `Join PSC BRO and test your knowledge: ${window.location.origin}`;
+        `Join QQuiz and test your knowledge: ${window.location.origin}`;
 
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
       window.open(whatsappUrl, '_blank');

@@ -252,7 +252,7 @@ const QuizEntry = () => {
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="space-y-4">
           <div className="text-center space-y-2">
-            <Badge className="bg-primary text-primary-foreground border-primary/30 shadow-sm">PSC BRO Quiz</Badge>
+            <Badge className="bg-primary text-primary-foreground border-primary/30 shadow-sm">QQuiz</Badge>
             <CardTitle className="text-2xl">{quiz.title}</CardTitle>
             {quiz.description && <CardDescription className="text-base">{quiz.description}</CardDescription>}
           </div>
