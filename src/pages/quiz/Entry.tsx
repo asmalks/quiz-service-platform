@@ -17,6 +17,7 @@ interface Quiz {
   start_time: string;
   end_time: string;
   status: string;
+  whatsapp_required: boolean;
 }
 
 const QuizEntry = () => {
@@ -95,7 +96,7 @@ const QuizEntry = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from("quizzes")
-        .select("*")
+        .select("id, title, description, start_time, end_time, status, whatsapp_required")
         .eq("id", quizId)
         .eq("status", "published")
         .maybeSingle();
@@ -188,6 +189,41 @@ const QuizEntry = () => {
 
   // Show already participated message
   if (alreadyParticipated) {
+    const isDev = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+
+    const handleReset = async () => {
+      try {
+        setLoading(true);
+        // Delete responses first (cascade might not be set up)
+        const { data: partData } = await supabase
+          .from("participants")
+          .select("id")
+          .eq("quiz_id", quizId)
+          .eq("device_fingerprint", deviceFingerprint)
+          .maybeSingle();
+
+        if (partData) {
+          await supabase.from("responses").delete().eq("participant_id", partData.id);
+          await supabase.from("participants").delete().eq("id", partData.id);
+        }
+
+        setAlreadyParticipated(false);
+        setExistingParticipantName("");
+        toast({
+          title: "Debug Mode",
+          description: "Participation reset. You can now try again.",
+        });
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: "Could not reset: " + error.message,
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pastel-lavender via-pastel-pink to-pastel-peach p-4">
         <Card className="w-full max-w-md shadow-2xl">
@@ -209,6 +245,15 @@ const QuizEntry = () => {
             >
               View Leaderboard
             </Button>
+            {isDev && (
+              <Button
+                variant="destructive"
+                className="w-full border-2 border-destructive bg-transparent text-destructive hover:bg-destructive hover:text-white"
+                onClick={handleReset}
+              >
+                Developer: Reset Participation
+              </Button>
+            )}
             <Button
               variant="outline"
               className="w-full"
@@ -258,20 +303,20 @@ const QuizEntry = () => {
           </div>
 
           <div className="grid grid-cols-3 gap-3 pt-4">
-            <div className="text-center p-3 rounded-lg bg-secondary/50 transition-all duration-300 hover:scale-105 hover:bg-primary/10 hover:shadow-md hover:border-2 hover:border-primary/30 cursor-pointer">
-              <Brain className="w-5 h-5 mx-auto mb-1 text-primary transition-transform duration-300 group-hover:scale-110" />
-              <p className="text-xs text-muted-foreground">Test Your</p>
-              <p className="text-sm font-semibold">Knowledge</p>
+            <div className="text-center p-3 rounded-lg bg-blue-50 border border-blue-100 transition-all duration-300 hover:scale-105 hover:bg-blue-100 hover:shadow-md cursor-pointer">
+              <Brain className="w-5 h-5 mx-auto mb-1 text-blue-600 transition-transform duration-300 group-hover:scale-110" />
+              <p className="text-xs text-blue-600/70 font-medium">Test Your</p>
+              <p className="text-sm font-bold text-blue-800">Knowledge</p>
             </div>
-            <div className="text-center p-3 rounded-lg bg-secondary/50 transition-all duration-300 hover:scale-105 hover:bg-accent/10 hover:shadow-md hover:border-2 hover:border-accent/30 cursor-pointer">
-              <Clock className="w-5 h-5 mx-auto mb-1 text-accent transition-transform duration-300 group-hover:scale-110" />
-              <p className="text-xs text-muted-foreground">Timed</p>
-              <p className="text-sm font-semibold">Challenge</p>
+            <div className="text-center p-3 rounded-lg bg-purple-50 border border-purple-100 transition-all duration-300 hover:scale-105 hover:bg-purple-100 hover:shadow-md cursor-pointer">
+              <Clock className="w-5 h-5 mx-auto mb-1 text-purple-600 transition-transform duration-300 group-hover:scale-110" />
+              <p className="text-xs text-purple-600/70 font-medium">Timed</p>
+              <p className="text-sm font-bold text-purple-800">Challenge</p>
             </div>
-            <div className="text-center p-3 rounded-lg bg-secondary/50 transition-all duration-300 hover:scale-105 hover:bg-primary-light/10 hover:shadow-md hover:border-2 hover:border-primary-light/30 cursor-pointer">
-              <Users className="w-5 h-5 mx-auto mb-1 text-primary-light transition-transform duration-300 group-hover:scale-110" />
-              <p className="text-xs text-muted-foreground">Compete</p>
-              <p className="text-sm font-semibold">& Win</p>
+            <div className="text-center p-3 rounded-lg bg-emerald-50 border border-emerald-100 transition-all duration-300 hover:scale-105 hover:bg-emerald-100 hover:shadow-md cursor-pointer">
+              <Users className="w-5 h-5 mx-auto mb-1 text-emerald-600 transition-transform duration-300 group-hover:scale-110" />
+              <p className="text-xs text-emerald-600/70 font-medium">Compete</p>
+              <p className="text-sm font-bold text-emerald-800">& Win</p>
             </div>
           </div>
         </CardHeader>
@@ -299,14 +344,15 @@ const QuizEntry = () => {
               />
             </div>
 
-            <div className="space-y-2 hidden">
-              <Label htmlFor="whatsapp">WhatsApp Number (Optional)</Label>
+            <div className="space-y-2">
+              <Label htmlFor="whatsapp">WhatsApp Number {quiz.whatsapp_required && "*"}</Label>
               <Input
                 id="whatsapp"
                 type="tel"
-                placeholder=""
+                placeholder="Enter your WhatsApp number"
                 value={formData.whatsapp}
                 onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                required={quiz.whatsapp_required}
               />
             </div>
 

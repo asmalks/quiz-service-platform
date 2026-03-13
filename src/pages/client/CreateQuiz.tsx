@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2, Save, ArrowLeft, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ClientAdminSession } from "@/components/client/ClientAdminLayout";
+import { utcToISTInput, istInputToUTC } from "@/lib/dateUtils";
 
 interface Question {
     id?: string;
@@ -28,14 +29,19 @@ const ClientCreateQuiz = () => {
 
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [startTime, setStartTime] = useState("");
-    const [endTime, setEndTime] = useState("");
-    const [timerPerQuestion, setTimerPerQuestion] = useState(10);
-    const [randomizeQuestions, setRandomizeQuestions] = useState(false);
-    const [randomizeOptions, setRandomizeOptions] = useState(false);
-    const [showLeaderboard, setShowLeaderboard] = useState(true);
+
+    const [quizData, setQuizData] = useState({
+        title: "",
+        description: "",
+        start_time: "",
+        end_time: "",
+        timer_per_question: 10,
+        randomize_questions: false,
+        randomize_options: false,
+        show_leaderboard: true,
+        whatsapp_required: false,
+    });
+
     const [questions, setQuestions] = useState<Question[]>([
         {
             question_text: "",
@@ -66,14 +72,17 @@ const ClientCreateQuiz = () => {
                 return;
             }
 
-            setTitle(quiz.title);
-            setDescription(quiz.description || "");
-            setStartTime(new Date(quiz.start_time).toISOString().slice(0, 16));
-            setEndTime(new Date(quiz.end_time).toISOString().slice(0, 16));
-            setTimerPerQuestion(quiz.timer_per_question);
-            setRandomizeQuestions(quiz.randomize_questions || false);
-            setRandomizeOptions(quiz.randomize_options || false);
-            setShowLeaderboard(quiz.show_leaderboard !== false);
+            setQuizData({
+                title: quiz.title,
+                description: quiz.description || "",
+                start_time: utcToISTInput(quiz.start_time),
+                end_time: utcToISTInput(quiz.end_time),
+                timer_per_question: quiz.timer_per_question,
+                randomize_questions: quiz.randomize_questions || false,
+                randomize_options: quiz.randomize_options || false,
+                show_leaderboard: quiz.show_leaderboard !== false,
+                whatsapp_required: quiz.whatsapp_required || false,
+            });
 
             const { data: questionsData } = await supabase
                 .from("questions")
@@ -115,56 +124,32 @@ const ClientCreateQuiz = () => {
 
     const updateQuestion = (index: number, field: string, value: any) => {
         const updated = [...questions];
-        if (field.startsWith("option_")) {
-            const key = field.replace("option_", "") as keyof Question["options"];
-            updated[index].options[key] = value;
-        } else {
+        if (field === "question_text" || field === "correct_answer") {
             (updated[index] as any)[field] = value;
+        } else {
+            updated[index].options[field as keyof Question["options"]] = value;
         }
         setQuestions(updated);
     };
 
     const handleSubmit = async (status: "draft" | "published") => {
-        if (!title.trim() || !startTime || !endTime) {
+        if (!quizData.title.trim() || !quizData.start_time || !quizData.end_time) {
             toast({ title: "Error", description: "Title, start time and end time are required", variant: "destructive" });
             return;
         }
 
-        const start = new Date(startTime);
-        const end = new Date(endTime);
-
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-            toast({ title: "Error", description: "Please enter valid dates and times", variant: "destructive" });
-            return;
-        }
-
-        if (start >= end) {
-            toast({ title: "Error", description: "End time must be after start time", variant: "destructive" });
-            return;
-        }
-
-        if (questions.some((q) => !q.question_text || !q.options.A || !q.options.B)) {
-            toast({ title: "Error", description: "All questions must have text and at least options A and B", variant: "destructive" });
+        if (questions.some((q) => !q.question_text || Object.values(q.options).some(o => !o))) {
+            toast({ title: "Error", description: "Please complete all questions and options", variant: "destructive" });
             return;
         }
 
         try {
             setSaving(true);
-            const { data: { session: authSession } } = await supabase.auth.getSession();
 
-            // Client admins use a service-level insert — we use the admin session's user_id if available,
-            // otherwise use a placeholder for created_by since client admins don't have Supabase Auth
-            const createdBy = authSession?.user?.id || "00000000-0000-0000-0000-000000000000";
-
-            const quizData = {
-                title,
-                description: description || null,
-                start_time: new Date(startTime).toISOString(),
-                end_time: new Date(endTime).toISOString(),
-                timer_per_question: timerPerQuestion,
-                randomize_questions: randomizeQuestions,
-                randomize_options: randomizeOptions,
-                show_leaderboard: showLeaderboard,
+            const payload = {
+                ...quizData,
+                start_time: istInputToUTC(quizData.start_time),
+                end_time: istInputToUTC(quizData.end_time),
                 status,
             };
 
@@ -172,7 +157,7 @@ const ClientCreateQuiz = () => {
                 question_text: q.question_text,
                 options: q.options,
                 correct_answer: q.correct_answer,
-                order_index: i,
+                order_index: i + 1,
             }));
 
             // Use RPC to bypass standard RLS but validate admin session securely
@@ -180,7 +165,7 @@ const ClientCreateQuiz = () => {
                 p_admin_id: session.admin_id,
                 p_client_id: session.client_id,
                 p_quiz_id: isEditing ? quizId : null,
-                p_quiz_data: quizData,
+                p_quiz_data: payload,
                 p_questions_data: questionsToInsert,
             });
 
@@ -188,7 +173,7 @@ const ClientCreateQuiz = () => {
 
             toast({
                 title: "Success",
-                description: `Quiz ${isEditing ? "updated" : "created"} successfully`,
+                description: `Quiz ${isEditing ? "updated" : "created"} and ${status === "published" ? "published" : "saved as draft"} successfully`,
             });
             navigate("/client/quizzes");
         } catch (error: any) {
@@ -212,135 +197,232 @@ const ClientCreateQuiz = () => {
     }
 
     return (
-        <div className="p-6 space-y-6">
-            <div className="flex items-center gap-3">
+        <div className="p-6 max-w-5xl mx-auto space-y-6">
+            <div className="flex items-center gap-4">
                 <Link to="/client/quizzes">
                     <Button variant="ghost" size="icon">
-                        <ArrowLeft className="h-5 w-5" />
+                        <ArrowLeft className="h-4 w-4" />
                     </Button>
                 </Link>
                 <div>
                     <h1 className="text-3xl font-bold text-foreground">
-                        {isEditing ? "Edit Quiz" : "Create Quiz"}
+                        {isEditing ? "Edit Quiz" : "Create New Quiz"}
                     </h1>
                     <p className="text-muted-foreground">for {session.client_name}</p>
                 </div>
             </div>
 
-            {/* Quiz Settings */}
             <Card>
                 <CardHeader>
                     <CardTitle>Quiz Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label>Title *</Label>
-                        <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Quiz title" />
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Description</Label>
-                        <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Quiz description" rows={2} />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>Start Time *</Label>
-                            <Input type="datetime-local" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
+                            <Label htmlFor="title">Quiz Title *</Label>
+                            <Input
+                                id="title"
+                                placeholder="e.g., Daily Quiz - General Knowledge"
+                                value={quizData.title}
+                                onChange={(e) => setQuizData({ ...quizData, title: e.target.value })}
+                            />
                         </div>
                         <div className="space-y-2">
-                            <Label>End Time *</Label>
-                            <Input type="datetime-local" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+                            <Label htmlFor="timer">Timer per Question (seconds)</Label>
+                            <Input
+                                id="timer"
+                                type="number"
+                                min="5"
+                                value={quizData.timer_per_question}
+                                onChange={(e) =>
+                                    setQuizData({ ...quizData, timer_per_question: parseInt(e.target.value) })
+                                }
+                            />
                         </div>
                     </div>
+
                     <div className="space-y-2">
-                        <Label>Timer per Question (seconds)</Label>
-                        <Input type="number" value={timerPerQuestion} onChange={(e) => setTimerPerQuestion(Number(e.target.value))} min={5} max={120} />
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                            id="description"
+                            placeholder="Quiz description..."
+                            value={quizData.description}
+                            onChange={(e) => setQuizData({ ...quizData, description: e.target.value })}
+                            rows={3}
+                        />
                     </div>
-                    <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2">
-                            <Switch checked={randomizeQuestions} onCheckedChange={setRandomizeQuestions} />
-                            <Label>Randomize Questions</Label>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="start_time">Start Time (IST) *</Label>
+                            <Input
+                                id="start_time"
+                                type="datetime-local"
+                                value={quizData.start_time}
+                                onChange={(e) => setQuizData({ ...quizData, start_time: e.target.value })}
+                            />
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Switch checked={randomizeOptions} onCheckedChange={setRandomizeOptions} />
-                            <Label>Randomize Options</Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="end_time">End Time (IST) *</Label>
+                            <Input
+                                id="end_time"
+                                type="datetime-local"
+                                value={quizData.end_time}
+                                onChange={(e) => setQuizData({ ...quizData, end_time: e.target.value })}
+                            />
                         </div>
-                        <div className="flex items-center gap-2">
-                            <Switch checked={showLeaderboard} onCheckedChange={setShowLeaderboard} />
-                            <Label>Show Leaderboard</Label>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                            <Label htmlFor="randomize-questions">Randomize Questions</Label>
+                            <p className="text-xs text-muted-foreground">
+                                Show questions in random order for each participant
+                            </p>
                         </div>
+                        <Switch
+                            id="randomize-questions"
+                            checked={quizData.randomize_questions}
+                            onCheckedChange={(checked) =>
+                                setQuizData({ ...quizData, randomize_questions: checked })
+                            }
+                        />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                            <Label htmlFor="randomize-options">Randomize Options</Label>
+                            <p className="text-xs text-muted-foreground">
+                                Show answer options in random order
+                            </p>
+                        </div>
+                        <Switch
+                            id="randomize-options"
+                            checked={quizData.randomize_options}
+                            onCheckedChange={(checked) =>
+                                setQuizData({ ...quizData, randomize_options: checked })
+                            }
+                        />
+                    </div>
+
+                    <div className="flex items-center justify-between border-t pt-4">
+                        <div className="space-y-1">
+                            <Label htmlFor="whatsapp-required">WhatsApp Mandatory</Label>
+                            <p className="text-xs text-muted-foreground">
+                                Require participants to enter their WhatsApp number
+                            </p>
+                        </div>
+                        <Switch
+                            id="whatsapp-required"
+                            checked={quizData.whatsapp_required}
+                            onCheckedChange={(checked) =>
+                                setQuizData({ ...quizData, whatsapp_required: checked })
+                            }
+                        />
+                    </div>
+                    <div className="flex items-center justify-between border-t pt-4">
+                        <div className="space-y-1">
+                            <Label htmlFor="show-leaderboard">Show Leaderboard</Label>
+                            <p className="text-xs text-muted-foreground">
+                                Display this quiz's leaderboard publicly
+                            </p>
+                        </div>
+                        <Switch
+                            id="show-leaderboard"
+                            checked={quizData.show_leaderboard}
+                            onCheckedChange={(checked) =>
+                                setQuizData({ ...quizData, show_leaderboard: checked })
+                            }
+                        />
                     </div>
                 </CardContent>
             </Card>
 
-            {/* Questions */}
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Questions ({questions.length})</CardTitle>
-                    <Button onClick={addQuestion} size="sm">
-                        <Plus className="mr-1 h-3 w-3" />
+                    <Button onClick={addQuestion} variant="outline" size="sm">
+                        <Plus className="mr-2 h-4 w-4" />
                         Add Question
                     </Button>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    {questions.map((q, index) => (
-                        <div key={index} className="border rounded-lg p-4 space-y-3">
-                            <div className="flex items-center justify-between">
-                                <Label className="font-semibold">Question {index + 1}</Label>
+                    {questions.map((question, qIndex) => (
+                        <Card key={qIndex} className="border-2 shadow-none hover:border-primary/30 transition-colors">
+                            <CardHeader className="flex flex-row items-center justify-between pb-3">
+                                <h3 className="font-semibold">Question {qIndex + 1}</h3>
                                 {questions.length > 1 && (
-                                    <Button variant="ghost" size="sm" onClick={() => removeQuestion(index)} className="text-destructive">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => removeQuestion(qIndex)}
+                                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 )}
-                            </div>
-                            <Input
-                                value={q.question_text}
-                                onChange={(e) => updateQuestion(index, "question_text", e.target.value)}
-                                placeholder="Enter question text"
-                            />
-                            <div className="grid grid-cols-2 gap-3">
-                                {(["A", "B", "C", "D"] as const).map((key) => (
-                                    <div key={key} className="flex items-center gap-2">
-                                        <span className={`text-sm font-bold w-6 ${q.correct_answer === key ? "text-green-600" : ""}`}>
-                                            {key}
-                                        </span>
-                                        <Input
-                                            value={q.options[key]}
-                                            onChange={(e) => updateQuestion(index, `option_${key}`, e.target.value)}
-                                            placeholder={`Option ${key}`}
-                                            className="flex-1"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="space-y-1">
-                                <Label className="text-xs">Correct Answer</Label>
-                                <div className="flex gap-2">
-                                    {(["A", "B", "C", "D"] as const).map((key) => (
-                                        <Button
-                                            key={key}
-                                            variant={q.correct_answer === key ? "default" : "outline"}
-                                            size="sm"
-                                            onClick={() => updateQuestion(index, "correct_answer", key)}
-                                        >
-                                            {key}
-                                        </Button>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label>Question Text</Label>
+                                    <Textarea
+                                        placeholder="Enter your question..."
+                                        value={question.question_text}
+                                        onChange={(e) => updateQuestion(qIndex, "question_text", e.target.value)}
+                                        rows={2}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {(["A", "B", "C", "D"] as const).map((option) => (
+                                        <div key={option} className="space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <Label>Option {option}</Label>
+                                                {question.correct_answer === option && (
+                                                    <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-bold">CORRECT</span>
+                                                )}
+                                            </div>
+                                            <Input
+                                                placeholder={`Option ${option}`}
+                                                value={question.options[option]}
+                                                onChange={(e) => updateQuestion(qIndex, option, e.target.value)}
+                                                className={question.correct_answer === option ? "border-green-500 focus-visible:ring-green-500" : ""}
+                                            />
+                                        </div>
                                     ))}
                                 </div>
-                            </div>
-                        </div>
+
+                                <div className="space-y-2">
+                                    <Label>Correct Answer</Label>
+                                    <div className="flex gap-2">
+                                        {(["A", "B", "C", "D"] as const).map((key) => (
+                                            <Button
+                                                key={key}
+                                                type="button"
+                                                variant={question.correct_answer === key ? "default" : "outline"}
+                                                size="sm"
+                                                onClick={() => updateQuestion(qIndex, "correct_answer", key)}
+                                                className={question.correct_answer === key ? "bg-green-600 hover:bg-green-700" : ""}
+                                            >
+                                                {key}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
                     ))}
                 </CardContent>
             </Card>
 
-            {/* Actions */}
             <div className="flex gap-3 justify-end">
                 <Button variant="outline" onClick={() => handleSubmit("draft")} disabled={saving}>
                     <Save className="mr-2 h-4 w-4" />
                     Save as Draft
                 </Button>
-                <Button onClick={() => handleSubmit("published")} disabled={saving} className="bg-primary hover:bg-primary-light">
+                <Button onClick={() => handleSubmit("published")} disabled={saving} className="bg-primary hover:bg-primary-light min-w-[140px]">
                     {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                    Publish Quiz
+                    {isEditing ? "Update & Publish" : "Publish Quiz"}
                 </Button>
             </div>
         </div>

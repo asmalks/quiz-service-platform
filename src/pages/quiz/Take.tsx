@@ -89,21 +89,28 @@ const QuizTake = () => {
 
       if (quizData.randomize_options) {
         processedQuestions = processedQuestions.map((q) => {
-          const optionsArray = Object.entries(q.options);
-          const shuffled = optionsArray.sort(() => Math.random() - 0.5);
+          const originalOptions = q.options as { A: string; B: string; C: string; D: string };
+          const keys = Object.keys(originalOptions) as (keyof typeof originalOptions)[];
+          
+          // Fisher-Yates shuffle
+          for (let i = keys.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [keys[i], keys[j]] = [keys[j], keys[i]];
+          }
+          
           const newOptions: any = {};
-          const reverseMapping: any = {}; // new key -> original key
-
-          shuffled.forEach(([originalKey, value], idx) => {
+          const reverseMapping: any = {};
+          
+          keys.forEach((originalKey, idx) => {
             const newKey = String.fromCharCode(65 + idx);
-            newOptions[newKey] = value;
-            reverseMapping[newKey] = originalKey; // Store reverse mapping
+            newOptions[newKey] = originalOptions[originalKey];
+            reverseMapping[newKey] = originalKey;
           });
 
           return {
             ...q,
             options: newOptions,
-            reverseKeyMapping: reverseMapping, // Store for use when submitting
+            reverseKeyMapping: reverseMapping,
           };
         });
       }

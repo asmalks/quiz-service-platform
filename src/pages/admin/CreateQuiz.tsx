@@ -36,6 +36,7 @@ const CreateQuiz = () => {
     randomize_questions: false,
     randomize_options: false,
     show_leaderboard: true,
+    whatsapp_required: false,
   });
 
   const [questions, setQuestions] = useState<Question[]>([
@@ -71,6 +72,7 @@ const CreateQuiz = () => {
         randomize_questions: quiz.randomize_questions || false,
         randomize_options: quiz.randomize_options || false,
         show_leaderboard: quiz.show_leaderboard ?? true,
+        whatsapp_required: quiz.whatsapp_required || false,
       });
 
       // Fetch questions
@@ -155,6 +157,7 @@ const CreateQuiz = () => {
             randomize_questions: quizData.randomize_questions,
             randomize_options: quizData.randomize_options,
             show_leaderboard: quizData.show_leaderboard,
+            whatsapp_required: quizData.whatsapp_required,
             status,
             updated_at: new Date().toISOString(),
           })
@@ -204,6 +207,7 @@ const CreateQuiz = () => {
             randomize_questions: quizData.randomize_questions,
             randomize_options: quizData.randomize_options,
             show_leaderboard: quizData.show_leaderboard,
+            whatsapp_required: quizData.whatsapp_required,
             status,
             created_by: user.id,
           })
@@ -365,6 +369,21 @@ const CreateQuiz = () => {
             />
           </div>
 
+          <div className="flex items-center justify-between border-t pt-4">
+            <div className="space-y-1">
+              <Label htmlFor="whatsapp-required">WhatsApp Mandatory</Label>
+              <p className="text-xs text-muted-foreground">
+                Require participants to enter their WhatsApp number
+              </p>
+            </div>
+            <Switch
+              id="whatsapp-required"
+              checked={quizData.whatsapp_required}
+              onCheckedChange={(checked) =>
+                setQuizData({ ...quizData, whatsapp_required: checked })
+              }
+            />
+          </div>
           <div className="flex items-center justify-between border-t pt-4">
             <div className="space-y-1">
               <Label htmlFor="show-leaderboard">Show Leaderboard</Label>

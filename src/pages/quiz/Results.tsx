@@ -183,30 +183,31 @@ const QuizResults = () => {
 
             {/* Score Display */}
             <div className="grid grid-cols-3 gap-3 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border-2 border-primary/30">
-                <p className="text-xs text-muted-foreground mb-1">Score</p>
-                <p className="text-3xl font-bold text-primary">
+              <div className="p-4 rounded-2xl bg-[#EEF2FF] border-2 border-[#C7D2FE] shadow-sm transition-transform hover:scale-105">
+                <p className="text-xs text-[#6366F1] font-bold uppercase tracking-wider mb-1">Score</p>
+                <p className="text-3xl font-black text-[#4338CA]">
                   {results.participant.total_score}/{results.totalQuestions}
                 </p>
-                <div className="mt-1 h-1.5 bg-primary/20 rounded-full overflow-hidden">
+                <div className="mt-2 h-2 bg-[#E0E7FF] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-primary to-primary-glow rounded-full transition-all duration-1000"
+                    className="h-full bg-gradient-to-r from-[#6366F1] to-[#4338CA] rounded-full transition-all duration-1000"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
               </div>
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/20 to-accent/5 border-2 border-accent/30">
-                <p className="text-xs text-muted-foreground mb-1">Time</p>
+              <div className="p-4 rounded-2xl bg-[#F5F3FF] border-2 border-[#DDD6FE] shadow-sm transition-transform hover:scale-105">
+                <p className="text-xs text-[#8B5CF6] font-bold uppercase tracking-wider mb-1">Time</p>
                 <div className="flex items-center justify-center gap-1">
-                  <Clock className="w-5 h-5 text-accent" />
-                  <p className="text-2xl font-bold text-accent">{results.participant.total_time_taken}s</p>
+                  <Clock className="w-5 h-5 text-[#8B5CF6]" />
+                  <p className="text-3xl font-black text-[#6D28D9]">{results.participant.total_time_taken}s</p>
                 </div>
               </div>
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-primary-light/20 to-primary-light/5 border-2 border-primary-light/30">
-                <p className="text-xs text-muted-foreground mb-1">Accuracy</p>
-                <p className="text-2xl font-bold">
+              <div className="p-4 rounded-2xl bg-[#F0FDF4] border-2 border-[#BBF7D0] shadow-sm transition-transform hover:scale-105">
+                <p className="text-xs text-[#22C55E] font-bold uppercase tracking-wider mb-1">Accuracy</p>
+                <p className="text-3xl font-black text-[#15803D]">
                   {percentage.toFixed(0)}%
                 </p>
+                <div className="mt-2 h-1 bg-[#DCFCE7] rounded-full" />
               </div>
             </div>
 
