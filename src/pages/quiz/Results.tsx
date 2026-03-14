@@ -21,6 +21,7 @@ interface ResultData {
     correct_answer: string;
     user_answer: string;
     is_correct: boolean;
+    show_review: boolean;
   }>;
   totalQuestions: number;
   badgeText?: string;
@@ -58,36 +59,19 @@ const QuizResults = () => {
 
       if (participantError) throw participantError;
 
-      const { data: responses, error: responsesError } = await supabase
-        .from("responses")
-        .select(`
-          answer,
-          is_correct,
-          question_id
-        `)
-        .eq("participant_id", participantId)
-        .order("created_at");
+      const { data: questionReview, error: reviewError } = await supabase
+        .rpc("get_participant_results", { p_participant_id: participantId });
 
-      if (responsesError) throw responsesError;
+      if (reviewError) throw reviewError;
 
-      const { data: questions, error: questionsError } = await supabase
-        .from("questions")
-        .select("id, question_text, options, correct_answer")
-        .eq("quiz_id", quizId)
-        .order("order_index");
- 
-      if (questionsError) throw questionsError;
- 
-      const questionsData = (questions || []).map((q: any) => {
-        const response = responses?.find((r: any) => r.question_id === q.id);
-        return {
-          question_text: q.question_text,
-          options: q.options,
-          correct_answer: q.correct_answer,
-          user_answer: response?.answer || "",
-          is_correct: response?.is_correct || false,
-        };
-      });
+      const questionsData = (questionReview || []).map((q: any) => ({
+        question_text: q.question_text,
+        options: q.options,
+        correct_answer: q.correct_answer,
+        user_answer: q.user_answer,
+        is_correct: q.is_correct,
+        show_review: q.show_review
+      }));
 
       const resultData = {
         participant,
@@ -282,10 +266,14 @@ const QuizResults = () => {
               <span className="text-2xl">📚</span>
               Answer Review
             </CardTitle>
-            <p className="text-sm text-muted-foreground">Review all questions and learn from your answers</p>
+            <p className="text-sm text-muted-foreground">
+              {results.questions[0]?.show_review 
+                ? "Review all questions and learn from your answers" 
+                : "Answer review has been disabled for this quiz"}
+            </p>
           </CardHeader>
           <CardContent className="space-y-3">
-            {results.questions.map((q, idx) => {
+            {results.questions[0]?.show_review && results.questions.map((q, idx) => {
               const options = q.options || {};
               const correctAnswerText = options[q.correct_answer] || q.correct_answer;
               const userAnswerText = q.user_answer ? (options[q.user_answer] || q.user_answer) : null;

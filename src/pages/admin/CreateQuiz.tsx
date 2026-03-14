@@ -38,6 +38,7 @@ const CreateQuiz = () => {
     show_leaderboard: true,
     whatsapp_required: false,
     badge_text: "",
+    show_answer_review: true,
   });
 
   const [questions, setQuestions] = useState<Question[]>([
@@ -75,6 +76,7 @@ const CreateQuiz = () => {
         show_leaderboard: quiz.show_leaderboard ?? true,
         whatsapp_required: (quiz as any).whatsapp_required || false,
         badge_text: (quiz as any).badge_text || "",
+        show_answer_review: (quiz as any).show_answer_review ?? true,
       });
 
       // Fetch questions
@@ -161,6 +163,7 @@ const CreateQuiz = () => {
             show_leaderboard: quizData.show_leaderboard,
             whatsapp_required: quizData.whatsapp_required,
             badge_text: quizData.badge_text,
+            show_answer_review: quizData.show_answer_review,
             status,
             updated_at: new Date().toISOString(),
           })
@@ -212,6 +215,7 @@ const CreateQuiz = () => {
             show_leaderboard: quizData.show_leaderboard,
             whatsapp_required: quizData.whatsapp_required,
             badge_text: quizData.badge_text,
+            show_answer_review: quizData.show_answer_review,
             status,
             created_by: user.id,
           })
@@ -396,6 +400,22 @@ const CreateQuiz = () => {
               checked={quizData.whatsapp_required}
               onCheckedChange={(checked) =>
                 setQuizData({ ...quizData, whatsapp_required: checked })
+              }
+            />
+          </div>
+
+          <div className="flex items-center justify-between border-t pt-4">
+            <div className="space-y-1">
+              <Label htmlFor="show-answer-review">Show Answer Review</Label>
+              <p className="text-xs text-muted-foreground">
+                Allow participants to see correct answers and review their choices after the quiz
+              </p>
+            </div>
+            <Switch
+              id="show-answer-review"
+              checked={quizData.show_answer_review}
+              onCheckedChange={(checked) =>
+                setQuizData({ ...quizData, show_answer_review: checked })
               }
             />
           </div>

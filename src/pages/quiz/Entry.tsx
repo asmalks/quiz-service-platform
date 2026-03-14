@@ -305,21 +305,21 @@ const QuizEntry = () => {
             {quiz.description && <CardDescription className="text-base">{quiz.description}</CardDescription>}
           </div>
 
-          <div className="grid grid-cols-3 gap-3 pt-4">
-            <div className="text-center p-3 rounded-lg bg-blue-50 border border-blue-100 transition-all duration-300 hover:scale-105 hover:bg-blue-100 hover:shadow-md cursor-pointer">
-              <Brain className="w-5 h-5 mx-auto mb-1 text-blue-600 transition-transform duration-300 group-hover:scale-110" />
-              <p className="text-xs text-blue-600/70 font-medium">Test Your</p>
-              <p className="text-sm font-bold text-blue-800">Knowledge</p>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-4">
+            <div className="text-center p-2 sm:p-3 rounded-lg bg-blue-50 border border-blue-100 transition-all duration-300 hover:scale-105 hover:bg-blue-100 hover:shadow-md cursor-pointer">
+              <Brain className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-blue-600 transition-transform duration-300 group-hover:scale-110" />
+              <p className="text-[10px] sm:text-xs text-blue-600/70 font-medium">Test Your</p>
+              <p className="text-[11px] sm:text-sm font-bold text-blue-800 break-words">Knowledge</p>
             </div>
-            <div className="text-center p-3 rounded-lg bg-purple-50 border border-purple-100 transition-all duration-300 hover:scale-105 hover:bg-purple-100 hover:shadow-md cursor-pointer">
-              <Clock className="w-5 h-5 mx-auto mb-1 text-purple-600 transition-transform duration-300 group-hover:scale-110" />
-              <p className="text-xs text-purple-600/70 font-medium">Timed</p>
-              <p className="text-sm font-bold text-purple-800">Challenge</p>
+            <div className="text-center p-2 sm:p-3 rounded-lg bg-purple-50 border border-purple-100 transition-all duration-300 hover:scale-105 hover:bg-purple-100 hover:shadow-md cursor-pointer">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-purple-600 transition-transform duration-300 group-hover:scale-110" />
+              <p className="text-[10px] sm:text-xs text-purple-600/70 font-medium">Timed</p>
+              <p className="text-[11px] sm:text-sm font-bold text-purple-800 break-words">Challenge</p>
             </div>
-            <div className="text-center p-3 rounded-lg bg-emerald-50 border border-emerald-100 transition-all duration-300 hover:scale-105 hover:bg-emerald-100 hover:shadow-md cursor-pointer">
-              <Users className="w-5 h-5 mx-auto mb-1 text-emerald-600 transition-transform duration-300 group-hover:scale-110" />
-              <p className="text-xs text-emerald-600/70 font-medium">Compete</p>
-              <p className="text-sm font-bold text-emerald-800">& Win</p>
+            <div className="text-center p-2 sm:p-3 rounded-lg bg-emerald-50 border border-emerald-100 transition-all duration-300 hover:scale-105 hover:bg-emerald-100 hover:shadow-md cursor-pointer">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 text-emerald-600 transition-transform duration-300 group-hover:scale-110" />
+              <p className="text-[10px] sm:text-xs text-emerald-600/70 font-medium">Compete</p>
+              <p className="text-[11px] sm:text-sm font-bold text-emerald-800 break-words">& Win</p>
             </div>
           </div>
         </CardHeader>

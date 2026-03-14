@@ -41,6 +41,7 @@ const ClientCreateQuiz = () => {
         show_leaderboard: true,
         whatsapp_required: false,
         badge_text: "",
+        show_answer_review: true,
     });
 
     const [questions, setQuestions] = useState<Question[]>([
@@ -84,6 +85,7 @@ const ClientCreateQuiz = () => {
                 show_leaderboard: quiz.show_leaderboard !== false,
                 whatsapp_required: (quiz as any).whatsapp_required || false,
                 badge_text: (quiz as any).badge_text || "",
+                show_answer_review: (quiz as any).show_answer_review ?? true,
             });
 
             const { data: questionsData } = await supabase
@@ -345,6 +347,22 @@ const ClientCreateQuiz = () => {
                             checked={quizData.show_leaderboard}
                             onCheckedChange={(checked) =>
                                 setQuizData({ ...quizData, show_leaderboard: checked })
+                            }
+                        />
+                    </div>
+
+                    <div className="flex items-center justify-between border-t pt-4">
+                        <div className="space-y-1">
+                            <Label htmlFor="show-answer-review">Show Answer Review</Label>
+                            <p className="text-xs text-muted-foreground">
+                                Allow participants to see correct answers and review their choices after the quiz
+                            </p>
+                        </div>
+                        <Switch
+                            id="show-answer-review"
+                            checked={quizData.show_answer_review}
+                            onCheckedChange={(checked) =>
+                                setQuizData({ ...quizData, show_answer_review: checked })
                             }
                         />
                     </div>

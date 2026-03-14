@@ -23,6 +23,7 @@ interface ResultData {
         correct_answer: string;
         user_answer: string;
         is_correct: boolean;
+        show_review: boolean;
     }>;
     totalQuestions: number;
     badgeText?: string;
@@ -62,32 +63,25 @@ const ClientResults = () => {
 
             if (!participant) throw new Error("Participant not found");
 
-            const { data: responses } = await supabase
-                .from("responses")
-                .select("question_id, answer, is_correct")
-                .eq("participant_id", participantId);
+            const { data: questionReview, error: reviewError } = await supabase
+                .rpc("get_participant_results", { p_participant_id: participantId });
 
-            const { data: questions } = await supabase
-                .from("questions")
-                .select("id, question_text, options, correct_answer")
-                .eq("quiz_id", quizId);
+            if (reviewError) throw reviewError;
 
-            const questionsWithAnswers = (questions || []).map((q) => {
-                const response = responses?.find((r) => r.question_id === q.id);
-                return {
-                    id: q.id,
-                    question_text: q.question_text,
-                    options: q.options,
-                    correct_answer: q.correct_answer,
-                    user_answer: response?.answer || "",
-                    is_correct: response?.is_correct || false,
-                };
-            });
+            const questionsWithAnswers = (questionReview || []).map((q: any) => ({
+                id: q.question_id,
+                question_text: q.question_text,
+                options: q.options,
+                correct_answer: q.correct_answer,
+                user_answer: q.user_answer,
+                is_correct: q.is_correct,
+                show_review: q.show_review
+            }));
 
             setResult({
                 participant,
                 questions: questionsWithAnswers,
-                totalQuestions: questions?.length || 0,
+                totalQuestions: questionReview?.length || 0,
                 badgeText: (participant.quizzes as any)?.badge_text || theme?.badge_text || theme?.name || "QQuiz",
                 quizTitle: (participant.quizzes as any)?.title || "Quiz",
             });
@@ -247,7 +241,12 @@ const ClientResults = () => {
                     </div>
 
                     <div className="space-y-4">
-                        {result.questions.map((q, index) => (
+                        {!result.questions[0]?.show_review && (
+                            <Card className="p-6 text-center border-2 border-dashed">
+                                <p className="text-muted-foreground">Answer review has been disabled for this quiz</p>
+                            </Card>
+                        )}
+                        {result.questions[0]?.show_review && result.questions.map((q, index) => (
                             <Card key={q.id} className={`overflow-hidden border-2 transition-all hover:shadow-md ${q.is_correct ? "border-green-100" : "border-red-100"}`}>
                                 <div className={`p-1 ${q.is_correct ? "bg-green-500" : "bg-red-500"}`} />
                                 <CardContent className="p-6 space-y-6">
