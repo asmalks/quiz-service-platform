@@ -18,6 +18,8 @@ interface Quiz {
     start_time: string;
     end_time: string;
     status: string;
+    whatsapp_required: boolean;
+    badge_text: string | null;
 }
 
 const ClientEntry = () => {
@@ -96,11 +98,11 @@ const ClientEntry = () => {
 
     const fetchQuiz = async () => {
         try {
-            const { data, error } = await supabase
+            const { data, error } = await (supabase
                 .from("quizzes")
-                .select("id, title, description, start_time, end_time, status, whatsapp_required")
+                .select("id, title, description, start_time, end_time, status, whatsapp_required, badge_text")
                 .eq("id", quizId)
-                .single();
+                .single() as any);
 
             if (error) throw error;
 
@@ -297,7 +299,7 @@ const ClientEntry = () => {
                     )}
                     <div className="space-y-2">
                         <Badge style={{ backgroundColor: theme.primary_color, color: "#fff" }} className="mb-2 px-3 py-1 shadow-sm animate-fade-in text-xs font-semibold">
-                            {theme.badge_text || theme.name}
+                            {quiz.badge_text || theme.badge_text || theme.name}
                         </Badge>
                         <h1 className="text-2xl sm:text-3xl font-bold animate-slide-up leading-tight" style={{ color: theme.primary_color }}>
                             {quiz.title}

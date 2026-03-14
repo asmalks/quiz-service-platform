@@ -35,6 +35,7 @@ const ClientTake = () => {
     const [showCelebration, setShowCelebration] = useState(false);
     const [questionTransition, setQuestionTransition] = useState(false);
     const [isAnswering, setIsAnswering] = useState(false);
+    const [quiz, setQuiz] = useState<any>(null);
 
     useEffect(() => {
         fetchQuizData();
@@ -44,9 +45,9 @@ const ClientTake = () => {
         try {
             const { data: quiz } = await supabase
                 .from("quizzes")
-                .select("timer_per_question, randomize_questions, randomize_options")
+                .select("timer_per_question, randomize_questions, randomize_options, badge_text")
                 .eq("id", quizId)
-                .single();
+                .single() as any;
 
             if (quiz) {
                 setTimerPerQuestion(quiz.timer_per_question);
@@ -98,6 +99,7 @@ const ClientTake = () => {
                 }
 
                 setQuestions(processedQuestions);
+                setQuiz(quiz);
             }
         } catch (error) {
             console.error("Error:", error);
@@ -244,7 +246,9 @@ const ClientTake = () => {
                     {theme.logo_url && (
                         <img src={theme.logo_url} alt={theme.name} className="h-8 object-contain" />
                     )}
-                    <span className="font-bold hidden sm:inline" style={{ color: theme.primary_color }}>{theme.name}</span>
+                    <span className="font-bold hidden sm:inline" style={{ color: theme.primary_color }}>
+                        {(quiz as any)?.badge_text || theme.badge_text || theme.name}
+                    </span>
                 </div>
                 <div className="flex items-center gap-4">
                     <Badge variant="secondary" className="px-3 py-1 font-semibold">

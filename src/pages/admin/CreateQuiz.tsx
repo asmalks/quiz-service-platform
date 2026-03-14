@@ -37,6 +37,7 @@ const CreateQuiz = () => {
     randomize_options: false,
     show_leaderboard: true,
     whatsapp_required: false,
+    badge_text: "",
   });
 
   const [questions, setQuestions] = useState<Question[]>([
@@ -72,7 +73,8 @@ const CreateQuiz = () => {
         randomize_questions: quiz.randomize_questions || false,
         randomize_options: quiz.randomize_options || false,
         show_leaderboard: quiz.show_leaderboard ?? true,
-        whatsapp_required: quiz.whatsapp_required || false,
+        whatsapp_required: (quiz as any).whatsapp_required || false,
+        badge_text: (quiz as any).badge_text || "",
       });
 
       // Fetch questions
@@ -158,6 +160,7 @@ const CreateQuiz = () => {
             randomize_options: quizData.randomize_options,
             show_leaderboard: quizData.show_leaderboard,
             whatsapp_required: quizData.whatsapp_required,
+            badge_text: quizData.badge_text,
             status,
             updated_at: new Date().toISOString(),
           })
@@ -208,6 +211,7 @@ const CreateQuiz = () => {
             randomize_options: quizData.randomize_options,
             show_leaderboard: quizData.show_leaderboard,
             whatsapp_required: quizData.whatsapp_required,
+            badge_text: quizData.badge_text,
             status,
             created_by: user.id,
           })
@@ -291,6 +295,17 @@ const CreateQuiz = () => {
                 onChange={(e) => setQuizData({ ...quizData, title: e.target.value })}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="badge_text">Badge Text (Default: QQuiz)</Label>
+              <Input
+                id="badge_text"
+                placeholder="e.g., QQuiz"
+                value={quizData.badge_text}
+                onChange={(e) => setQuizData({ ...quizData, badge_text: e.target.value })}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="timer">Timer per Question (seconds)</Label>
               <Input

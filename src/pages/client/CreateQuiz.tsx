@@ -40,6 +40,7 @@ const ClientCreateQuiz = () => {
         randomize_options: false,
         show_leaderboard: true,
         whatsapp_required: false,
+        badge_text: "",
     });
 
     const [questions, setQuestions] = useState<Question[]>([
@@ -81,7 +82,8 @@ const ClientCreateQuiz = () => {
                 randomize_questions: quiz.randomize_questions || false,
                 randomize_options: quiz.randomize_options || false,
                 show_leaderboard: quiz.show_leaderboard !== false,
-                whatsapp_required: quiz.whatsapp_required || false,
+                whatsapp_required: (quiz as any).whatsapp_required || false,
+                badge_text: (quiz as any).badge_text || "",
             });
 
             const { data: questionsData } = await supabase
@@ -227,6 +229,17 @@ const ClientCreateQuiz = () => {
                                 onChange={(e) => setQuizData({ ...quizData, title: e.target.value })}
                             />
                         </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="badge_text">Badge Text (Default: QQuiz / Client Name)</Label>
+                            <Input
+                                id="badge_text"
+                                placeholder="e.g., QQuiz"
+                                value={quizData.badge_text}
+                                onChange={(e) => setQuizData({ ...quizData, badge_text: e.target.value })}
+                            />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="timer">Timer per Question (seconds)</Label>
                             <Input

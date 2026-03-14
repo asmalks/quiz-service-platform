@@ -18,6 +18,7 @@ interface Quiz {
   end_time: string;
   status: string;
   whatsapp_required: boolean;
+  badge_text: string | null;
 }
 
 const QuizEntry = () => {
@@ -94,12 +95,12 @@ const QuizEntry = () => {
   const fetchQuiz = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await (supabase
         .from("quizzes")
-        .select("id, title, description, start_time, end_time, status, whatsapp_required")
+        .select("id, title, description, start_time, end_time, status, whatsapp_required, badge_text")
         .eq("id", quizId)
         .eq("status", "published")
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (error) throw error;
 
@@ -297,7 +298,9 @@ const QuizEntry = () => {
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="space-y-4">
           <div className="text-center space-y-2">
-            <Badge className="bg-primary text-primary-foreground border-primary/30 shadow-sm">QQuiz</Badge>
+            <Badge className="bg-primary text-primary-foreground border-primary/30 shadow-sm">
+              {quiz.badge_text || "QQuiz"}
+            </Badge>
             <CardTitle className="text-2xl">{quiz.title}</CardTitle>
             {quiz.description && <CardDescription className="text-base">{quiz.description}</CardDescription>}
           </div>

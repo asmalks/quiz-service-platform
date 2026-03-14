@@ -10,7 +10,12 @@ import { useWindowSize } from "@/hooks/use-window-size";
 import { useClientTheme } from "@/hooks/use-client-theme";
 
 interface ResultData {
-    participant: { name: string; total_score: number; total_time_taken: number };
+    participant: { 
+        name: string; 
+        total_score: number; 
+        total_time_taken: number;
+        quizzes?: { badge_text: string | null };
+    };
     questions: Array<{
         id: string;
         question_text: string;
@@ -20,6 +25,7 @@ interface ResultData {
         is_correct: boolean;
     }>;
     totalQuestions: number;
+    badgeText?: string;
 }
 
 const ClientResults = () => {
@@ -39,11 +45,18 @@ const ClientResults = () => {
 
     const fetchResults = async () => {
         try {
-            const { data: participant } = await supabase
+            const { data: participant } = await (supabase
                 .from("participants")
-                .select("name, total_score, total_time_taken")
+                .select(`
+                    name, 
+                    total_score, 
+                    total_time_taken,
+                    quizzes (
+                        badge_text
+                    )
+                `)
                 .eq("id", participantId)
-                .single();
+                .single() as any);
 
             if (!participant) throw new Error("Participant not found");
 
@@ -73,6 +86,7 @@ const ClientResults = () => {
                 participant,
                 questions: questionsWithAnswers,
                 totalQuestions: questions?.length || 0,
+                badgeText: (participant.quizzes as any)?.badge_text || theme?.badge_text || theme?.name || "QQuiz",
             });
 
             if (participant.total_score > 0) {
@@ -89,7 +103,7 @@ const ClientResults = () => {
 
     const handleShare = async () => {
         if (!result) return;
-        const text = `I scored ${result.participant.total_score}/${result.totalQuestions} on ${theme.name} quiz! 🎉`;
+        const text = `I scored ${result.participant.total_score}/${result.totalQuestions} on ${result.badgeText} quiz! 🎉`;
         if (navigator.share) {
             try {
                 await navigator.share({ title: theme.name, text, url: window.location.href });
