@@ -157,7 +157,8 @@ const ClientResults = () => {
         );
     }
 
-    const accuracy = Math.round((result.participant.total_score / result.totalQuestions) * 100) || 0;
+    const totalQs = result.totalQuestions || 1;
+    const accuracy = Math.round((result.participant.total_score / totalQs) * 100);
 
     return (
         <div className="min-h-screen p-4 sm:p-6 font-malayalam relative pb-12" style={{ backgroundColor: theme.background_color }}>
@@ -195,24 +196,22 @@ const ClientResults = () => {
                                 {accuracy >= 80 ? "🎉 Outstanding!" : accuracy >= 60 ? "👍 Great Effort!" : accuracy >= 40 ? "📚 Good Try!" : "💪 Keep Learning!"}
                             </h2>
                             <p className="text-muted-foreground">You finished the quiz in {result.participant.total_time_taken} seconds.</p>
-                        </div>
-
-                        {/* Stats Grid */}
-                        <div className="grid grid-cols-3 gap-3 py-6">
-                            <div className="p-4 rounded-xl bg-blue-50 border border-blue-100 shadow-sm transition-transform hover:scale-105">
-                                <Trophy className="h-5 w-5 mx-auto mb-1 text-blue-600 opacity-70" />
-                                <div className="text-2xl font-black text-blue-900">{result.participant.total_score}</div>
-                                <div className="text-[10px] uppercase tracking-wider text-blue-600/70 font-bold">Score</div>
-                            </div>
-                            <div className="p-4 rounded-xl bg-purple-50 border border-purple-100 shadow-sm transition-transform hover:scale-105">
-                                <Clock className="h-5 w-5 mx-auto mb-1 text-purple-600 opacity-70" />
-                                <div className="text-2xl font-black text-purple-900">{result.participant.total_time_taken}s</div>
-                                <div className="text-[10px] uppercase tracking-wider text-purple-600/70 font-bold">Time</div>
-                            </div>
-                            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100 shadow-sm transition-transform hover:scale-105">
-                                <Target className="h-5 w-5 mx-auto mb-1 text-emerald-600 opacity-70" />
-                                <div className="text-2xl font-black text-emerald-900">{accuracy}%</div>
-                                <div className="text-[10px] uppercase tracking-wider text-emerald-600/70 font-bold">Accuracy</div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-6">
+                                <div className="p-3 sm:p-4 rounded-xl bg-blue-50 border border-blue-100 shadow-sm transition-transform hover:scale-105">
+                                    <Trophy className="h-4 w-4 sm:h-5 sm:w-5 mx-auto mb-1 text-blue-600 opacity-70" />
+                                    <div className="text-xl sm:text-2xl font-black text-blue-900">{result.participant.total_score}</div>
+                                    <div className="text-[10px] uppercase tracking-wider text-blue-600/70 font-bold">Score</div>
+                                </div>
+                                <div className="p-3 sm:p-4 rounded-xl bg-purple-50 border border-purple-100 shadow-sm transition-transform hover:scale-105">
+                                    <Clock className="h-4 w-4 sm:h-5 sm:w-5 mx-auto mb-1 text-purple-600 opacity-70" />
+                                    <div className="text-xl sm:text-2xl font-black text-purple-900">{result.participant.total_time_taken}s</div>
+                                    <div className="text-[10px] uppercase tracking-wider text-purple-600/70 font-bold">Time</div>
+                                </div>
+                                <div className="p-3 sm:p-4 rounded-xl bg-emerald-50 border border-emerald-100 shadow-sm transition-transform hover:scale-105 overflow-hidden">
+                                    <Target className="h-4 w-4 sm:h-5 sm:w-5 mx-auto mb-1 text-emerald-600 opacity-70" />
+                                    <div className="text-xl sm:text-2xl font-black text-emerald-900 truncate">{accuracy}%</div>
+                                    <div className="text-[10px] uppercase tracking-wider text-emerald-600/70 font-bold">Accuracy</div>
+                                </div>
                             </div>
                         </div>
 

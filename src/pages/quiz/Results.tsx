@@ -63,28 +63,31 @@ const QuizResults = () => {
         .select(`
           answer,
           is_correct,
-          questions (
-            question_text,
-            options,
-            correct_answer
-          )
+          question_id
         `)
         .eq("participant_id", participantId)
         .order("created_at");
 
       if (responsesError) throw responsesError;
 
-      const questionsData = responses
-        .filter((r: any) => r.questions !== null)
-        .map((r: any) => {
-          return {
-            question_text: r.questions.question_text,
-            options: r.questions.options,
-            correct_answer: r.questions.correct_answer,
-            user_answer: r.answer,
-            is_correct: r.is_correct,
-          };
-        });
+      const { data: questions, error: questionsError } = await supabase
+        .from("questions")
+        .select("id, question_text, options, correct_answer")
+        .eq("quiz_id", quizId)
+        .order("order_index");
+ 
+      if (questionsError) throw questionsError;
+ 
+      const questionsData = (questions || []).map((q: any) => {
+        const response = responses?.find((r: any) => r.question_id === q.id);
+        return {
+          question_text: q.question_text,
+          options: q.options,
+          correct_answer: q.correct_answer,
+          user_answer: response?.answer || "",
+          is_correct: response?.is_correct || false,
+        };
+      });
 
       const resultData = {
         participant,
@@ -155,8 +158,9 @@ const QuizResults = () => {
   }
 
   if (!results) return null;
-
-  const percentage = (results.participant.total_score / results.totalQuestions) * 100;
+ 
+  const totalQs = results.totalQuestions || 1;
+  const percentage = Math.round((results.participant.total_score / totalQs) * 100);
 
   return (
     <div className="min-h-screen bg-gradient-subtle py-6 px-4 relative overflow-hidden">
@@ -196,10 +200,10 @@ const QuizResults = () => {
             </div>
 
             {/* Score Display */}
-            <div className="grid grid-cols-3 gap-3 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <div className="p-4 rounded-2xl bg-[#EEF2FF] border-2 border-[#C7D2FE] shadow-sm transition-transform hover:scale-105">
-                <p className="text-xs text-[#6366F1] font-bold uppercase tracking-wider mb-1">Score</p>
-                <p className="text-3xl font-black text-[#4338CA]">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <div className="p-3 sm:p-4 rounded-2xl bg-[#EEF2FF] border-2 border-[#C7D2FE] shadow-sm transition-transform hover:scale-105">
+                <p className="text-[10px] sm:text-xs text-[#6366F1] font-bold uppercase tracking-wider mb-1">Score</p>
+                <p className="text-2xl sm:text-3xl font-black text-[#4338CA]">
                   {results.participant.total_score}/{results.totalQuestions}
                 </p>
                 <div className="mt-2 h-2 bg-[#E0E7FF] rounded-full overflow-hidden">
@@ -209,17 +213,17 @@ const QuizResults = () => {
                   />
                 </div>
               </div>
-              <div className="p-4 rounded-2xl bg-[#F5F3FF] border-2 border-[#DDD6FE] shadow-sm transition-transform hover:scale-105">
-                <p className="text-xs text-[#8B5CF6] font-bold uppercase tracking-wider mb-1">Time</p>
+              <div className="p-3 sm:p-4 rounded-2xl bg-[#F5F3FF] border-2 border-[#DDD6FE] shadow-sm transition-transform hover:scale-105">
+                <p className="text-[10px] sm:text-xs text-[#8B5CF6] font-bold uppercase tracking-wider mb-1">Time</p>
                 <div className="flex items-center justify-center gap-1">
-                  <Clock className="w-5 h-5 text-[#8B5CF6]" />
-                  <p className="text-3xl font-black text-[#6D28D9]">{results.participant.total_time_taken}s</p>
+                  <Clock className="w-4 h-4 sm:w-5 h-5 text-[#8B5CF6]" />
+                  <p className="text-2xl sm:text-3xl font-black text-[#6D28D9]">{results.participant.total_time_taken}s</p>
                 </div>
               </div>
-              <div className="p-4 rounded-2xl bg-[#F0FDF4] border-2 border-[#BBF7D0] shadow-sm transition-transform hover:scale-105">
-                <p className="text-xs text-[#22C55E] font-bold uppercase tracking-wider mb-1">Accuracy</p>
-                <p className="text-3xl font-black text-[#15803D]">
-                  {percentage.toFixed(0)}%
+              <div className="p-3 sm:p-4 rounded-2xl bg-[#F0FDF4] border-2 border-[#BBF7D0] shadow-sm transition-transform hover:scale-105 overflow-hidden">
+                <p className="text-[10px] sm:text-xs text-[#22C55E] font-bold uppercase tracking-wider mb-1">Accuracy</p>
+                <p className="text-2xl sm:text-2xl md:text-3xl font-black text-[#15803D] truncate">
+                  {percentage}%
                 </p>
                 <div className="mt-2 h-1 bg-[#DCFCE7] rounded-full" />
               </div>
