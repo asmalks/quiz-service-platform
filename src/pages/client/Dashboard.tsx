@@ -55,7 +55,7 @@ const ClientDashboard = () => {
             setStats({
                 totalQuizzes: quizCount || 0,
                 activeQuizzes: activeCount || 0,
-                totalParticipants: participantCount,
+                totalParticipants: participantCount || 0,
             });
         } catch (error) {
             console.error("Error fetching stats:", error);

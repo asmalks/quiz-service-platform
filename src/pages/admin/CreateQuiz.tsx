@@ -64,12 +64,12 @@ const CreateQuiz = () => {
 
       if (quizError) throw quizError;
 
-      setQuizData({
-        title: quiz.title,
+       setQuizData({
+        title: quiz.title || "",
         description: quiz.description || "",
-        start_time: utcToISTInput(quiz.start_time),
-        end_time: utcToISTInput(quiz.end_time),
-        timer_per_question: quiz.timer_per_question,
+        start_time: quiz.start_time ? utcToISTInput(quiz.start_time) : "",
+        end_time: quiz.end_time ? utcToISTInput(quiz.end_time) : "",
+        timer_per_question: quiz.timer_per_question || 10,
         randomize_questions: quiz.randomize_questions || false,
         randomize_options: quiz.randomize_options || false,
         show_leaderboard: quiz.show_leaderboard ?? true,

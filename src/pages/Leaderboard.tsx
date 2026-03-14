@@ -280,8 +280,8 @@ const Leaderboard = () => {
           </CardContent>
         </Card>
 
-        {/* Top 3 Winners - Redesigned for Mobile */}
-        {entries.length >= 3 && (
+        {/* Winners Podium - Robust for 1, 2, or 3 players */}
+        {entries.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Mobile: Stack vertically with horizontal cards */}
             {/* Desktop: Keep podium style */}
@@ -317,70 +317,74 @@ const Leaderboard = () => {
                 </div>
               </CardContent>
             </Card>
-
-            {/* 2nd Place */}
-            <Card className={`sm:order-1 border-2 ${getTopRankStyle(2)} sm:mt-6`}>
-              <CardContent className="p-4">
-                <div className="flex sm:flex-col items-center gap-4 sm:gap-2 sm:text-center">
-                  <div className="relative">
-                    <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full ${getAvatarColor(entries[1].name)} flex items-center justify-center text-lg sm:text-xl font-bold text-foreground border-3 border-slate-300 shadow-md`}>
-                      {getInitials(entries[1].name)}
-                    </div>
-                    <div className="absolute -bottom-1 -right-1 sm:left-1/2 sm:-translate-x-1/2 sm:-bottom-2 bg-slate-100 rounded-full p-1.5 border-2 border-slate-300">
-                      <Medal className="w-3 h-3 sm:w-4 sm:h-4 text-slate-500" />
-                    </div>
-                  </div>
-                  <div className="flex-1 sm:flex-none sm:mt-2">
-                    <p className="font-bold text-sm sm:text-base text-foreground">{entries[1].name}</p>
-                    {entries[1].city && (
-                      <p className="text-xs text-muted-foreground">{entries[1].city}</p>
-                    )}
-                    <div className="flex items-center gap-3 mt-1 sm:justify-center">
-                      <div className="flex items-center gap-1">
-                        <Target className="w-3 h-3 text-slate-500" />
-                        <span className="font-bold text-base text-slate-600">{entries[1].total_score}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        <span className="text-sm">{entries[1].total_time_taken}s</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 3rd Place */}
-            <Card className={`sm:order-3 border-2 ${getTopRankStyle(3)} sm:mt-6`}>
-              <CardContent className="p-4">
-                <div className="flex sm:flex-col items-center gap-4 sm:gap-2 sm:text-center">
-                  <div className="relative">
-                    <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full ${getAvatarColor(entries[2].name)} flex items-center justify-center text-lg sm:text-xl font-bold text-foreground border-3 border-orange-300 shadow-md`}>
-                      {getInitials(entries[2].name)}
-                    </div>
-                    <div className="absolute -bottom-1 -right-1 sm:left-1/2 sm:-translate-x-1/2 sm:-bottom-2 bg-orange-100 rounded-full p-1.5 border-2 border-orange-300">
-                      <Award className="w-3 h-3 sm:w-4 sm:h-4 text-orange-500" />
-                    </div>
-                  </div>
-                  <div className="flex-1 sm:flex-none sm:mt-2">
-                    <p className="font-bold text-sm sm:text-base text-foreground">{entries[2].name}</p>
-                    {entries[2].city && (
-                      <p className="text-xs text-muted-foreground">{entries[2].city}</p>
-                    )}
-                    <div className="flex items-center gap-3 mt-1 sm:justify-center">
-                      <div className="flex items-center gap-1">
-                        <Target className="w-3 h-3 text-orange-500" />
-                        <span className="font-bold text-base text-orange-600">{entries[2].total_score}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        <span className="text-sm">{entries[2].total_time_taken}s</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+ 
+             {/* 2nd Place */}
+             {entries.length >= 2 && (
+               <Card className={`sm:order-1 border-2 ${getTopRankStyle(2)} sm:mt-6`}>
+                 <CardContent className="p-4">
+                   <div className="flex sm:flex-col items-center gap-4 sm:gap-2 sm:text-center">
+                     <div className="relative">
+                       <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full ${getAvatarColor(entries[1].name)} flex items-center justify-center text-lg sm:text-xl font-bold text-foreground border-3 border-slate-300 shadow-md`}>
+                         {getInitials(entries[1].name)}
+                       </div>
+                       <div className="absolute -bottom-1 -right-1 sm:left-1/2 sm:-translate-x-1/2 sm:-bottom-2 bg-slate-100 rounded-full p-1.5 border-2 border-slate-300">
+                         <Medal className="w-3 h-3 sm:w-4 sm:h-4 text-slate-500" />
+                       </div>
+                     </div>
+                     <div className="flex-1 sm:flex-none sm:mt-2">
+                       <p className="font-bold text-sm sm:text-base text-foreground">{entries[1].name}</p>
+                       {entries[1].city && (
+                         <p className="text-xs text-muted-foreground">{entries[1].city}</p>
+                       )}
+                       <div className="flex items-center gap-3 mt-1 sm:justify-center">
+                         <div className="flex items-center gap-1">
+                           <Target className="w-3 h-3 text-slate-500" />
+                           <span className="font-bold text-base text-slate-600">{entries[1].total_score}</span>
+                         </div>
+                         <div className="flex items-center gap-1 text-muted-foreground">
+                           <Clock className="w-3 h-3" />
+                           <span className="text-sm">{entries[1].total_time_taken || 0}s</span>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 </CardContent>
+               </Card>
+             )}
+ 
+             {/* 3rd Place */}
+             {entries.length >= 3 && (
+               <Card className={`sm:order-3 border-2 ${getTopRankStyle(3)} sm:mt-6`}>
+                 <CardContent className="p-4">
+                   <div className="flex sm:flex-col items-center gap-4 sm:gap-2 sm:text-center">
+                     <div className="relative">
+                       <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full ${getAvatarColor(entries[2].name)} flex items-center justify-center text-lg sm:text-xl font-bold text-foreground border-3 border-orange-300 shadow-md`}>
+                         {getInitials(entries[2].name)}
+                       </div>
+                       <div className="absolute -bottom-1 -right-1 sm:left-1/2 sm:-translate-x-1/2 sm:-bottom-2 bg-orange-100 rounded-full p-1.5 border-2 border-orange-300">
+                         <Award className="w-3 h-3 sm:w-4 sm:h-4 text-orange-500" />
+                       </div>
+                     </div>
+                     <div className="flex-1 sm:flex-none sm:mt-2">
+                       <p className="font-bold text-sm sm:text-base text-foreground">{entries[2].name}</p>
+                       {entries[2].city && (
+                         <p className="text-xs text-muted-foreground">{entries[2].city}</p>
+                       )}
+                       <div className="flex items-center gap-3 mt-1 sm:justify-center">
+                         <div className="flex items-center gap-1">
+                           <Target className="w-3 h-3 text-orange-500" />
+                           <span className="font-bold text-base text-orange-600">{entries[2].total_score}</span>
+                         </div>
+                         <div className="flex items-center gap-1 text-muted-foreground">
+                           <Clock className="w-3 h-3" />
+                           <span className="text-sm">{entries[2].total_time_taken || 0}s</span>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 </CardContent>
+               </Card>
+             )}
           </div>
         )}
 

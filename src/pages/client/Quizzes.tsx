@@ -101,8 +101,8 @@ const ClientQuizzes = () => {
                                         </p>
                                     )}
                                     <p className="text-xs text-muted-foreground mt-1">
-                                        {new Date(quiz.start_time).toLocaleString()} —{" "}
-                                        {new Date(quiz.end_time).toLocaleString()}
+                                        {quiz.start_time ? new Date(quiz.start_time).toLocaleString() : "N/A"} —{" "}
+                                        {quiz.end_time ? new Date(quiz.end_time).toLocaleString() : "N/A"}
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-2 ml-4">

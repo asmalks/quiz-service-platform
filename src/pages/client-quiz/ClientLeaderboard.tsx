@@ -103,31 +103,33 @@ const ClientLeaderboardPage = () => {
                     </div>
                 </div>
 
-                {/* Top 3 Podium */}
-                {entries.length >= 3 && (
-                    <div className="flex items-end justify-center gap-2 sm:gap-6 pb-8 px-2 animate-scale-in">
-                        {/* 2nd Place */}
-                        <div className="text-center flex-1 max-w-[140px] space-y-3">
-                            <div className="relative inline-block">
-                                <div
-                                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-white font-black text-xl mx-auto ring-4 ring-slate-200 shadow-xl"
-                                    style={{ backgroundColor: getAvatarColor(entries[1].name) }}
-                                >
-                                    {getInitials(entries[1].name)}
-                                </div>
-                                <div className="absolute -bottom-1 -right-1 bg-slate-100 p-1.5 rounded-full border-2 shadow-sm">
-                                    <Medal className="h-4 w-4 text-slate-400" />
-                                </div>
-                            </div>
-                            <div className="space-y-0.5">
-                                <p className="text-sm font-bold truncate px-1">{entries[1].name}</p>
-                                <p className="text-xs font-black uppercase tracking-wider" style={{ color: theme.primary_color }}>{entries[1].total_score} Pts</p>
-                            </div>
-                            <div className="h-20 sm:h-24 rounded-t-2xl shadow-inner-lg mt-2 relative overflow-hidden"
-                                style={{ background: `linear-gradient(to bottom, ${theme.primary_color}20, ${theme.primary_color}05)` }}>
-                                <div className="text-4xl font-black opacity-10 absolute bottom-2 left-1/2 -translate-x-1/2">2</div>
-                            </div>
-                        </div>
+                {/* Top 3 Podium - Robust for 1, 2, or 3 players */}
+                 {entries.length > 0 && (
+                     <div className="flex items-end justify-center gap-2 sm:gap-6 pb-8 px-2 animate-fade-in">
+                         {/* 2nd Place */}
+                         {entries.length >= 2 && (
+                             <div className="text-center flex-1 max-w-[140px] space-y-3">
+                                 <div className="relative inline-block">
+                                     <div
+                                         className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-white font-black text-xl mx-auto ring-4 ring-slate-200 shadow-xl"
+                                         style={{ backgroundColor: getAvatarColor(entries[1].name) || '#ccc' }}
+                                     >
+                                         {getInitials(entries[1].name)}
+                                     </div>
+                                     <div className="absolute -bottom-1 -right-1 bg-slate-100 p-1.5 rounded-full border-2 shadow-sm">
+                                         <Medal className="h-4 w-4 text-slate-400" />
+                                     </div>
+                                 </div>
+                                 <div className="space-y-0.5">
+                                     <p className="text-sm font-bold truncate px-1">{entries[1].name}</p>
+                                     <p className="text-xs font-black uppercase tracking-wider" style={{ color: theme.primary_color }}>{entries[1].total_score} Pts</p>
+                                 </div>
+                                 <div className="h-20 sm:h-24 rounded-t-2xl shadow-inner-lg mt-2 relative overflow-hidden"
+                                     style={{ background: `linear-gradient(to bottom, ${theme.primary_color}20, ${theme.primary_color}05)` }}>
+                                     <div className="text-4xl font-black opacity-10 absolute bottom-2 left-1/2 -translate-x-1/2">2</div>
+                                 </div>
+                             </div>
+                         )}
 
                         {/* 1st Place */}
                         <div className="text-center flex-1 max-w-[160px] space-y-3 -translate-y-4">
@@ -152,28 +154,30 @@ const ClientLeaderboardPage = () => {
                             </div>
                         </div>
 
-                        {/* 3rd Place */}
-                        <div className="text-center flex-1 max-w-[140px] space-y-3">
-                            <div className="relative inline-block">
-                                <div
-                                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-white font-black text-xl mx-auto ring-4 ring-amber-100 shadow-xl"
-                                    style={{ backgroundColor: getAvatarColor(entries[2].name) }}
-                                >
-                                    {getInitials(entries[2].name)}
-                                </div>
-                                <div className="absolute -bottom-1 -right-1 bg-slate-100 p-1.5 rounded-full border-2 shadow-sm">
-                                    <Award className="h-4 w-4 text-amber-600" />
-                                </div>
-                            </div>
-                            <div className="space-y-0.5">
-                                <p className="text-sm font-bold truncate px-1">{entries[2].name}</p>
-                                <p className="text-xs font-black uppercase tracking-wider" style={{ color: theme.primary_color }}>{entries[2].total_score} Pts</p>
-                            </div>
-                            <div className="h-16 sm:h-16 rounded-t-2xl shadow-inner mt-2 relative overflow-hidden"
-                                style={{ background: `linear-gradient(to bottom, ${theme.primary_color}15, ${theme.primary_color}05)` }}>
-                                <div className="text-4xl font-black opacity-10 absolute bottom-1 left-1/2 -translate-x-1/2">3</div>
-                            </div>
-                        </div>
+                         {/* 3rd Place */}
+                         {entries.length >= 3 && (
+                             <div className="text-center flex-1 max-w-[140px] space-y-3">
+                                 <div className="relative inline-block">
+                                     <div
+                                         className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-white font-black text-xl mx-auto ring-4 ring-amber-100 shadow-xl"
+                                         style={{ backgroundColor: getAvatarColor(entries[2].name) || '#ccc' }}
+                                     >
+                                         {getInitials(entries[2].name)}
+                                     </div>
+                                     <div className="absolute -bottom-1 -right-1 bg-slate-100 p-1.5 rounded-full border-2 shadow-sm">
+                                         <Award className="h-4 w-4 text-amber-600" />
+                                     </div>
+                                 </div>
+                                 <div className="space-y-0.5">
+                                     <p className="text-sm font-bold truncate px-1">{entries[2].name}</p>
+                                     <p className="text-xs font-black uppercase tracking-wider" style={{ color: theme.primary_color }}>{entries[2].total_score} Pts</p>
+                                 </div>
+                                 <div className="h-16 sm:h-16 rounded-t-2xl shadow-inner mt-2 relative overflow-hidden"
+                                     style={{ background: `linear-gradient(to bottom, ${theme.primary_color}15, ${theme.primary_color}05)` }}>
+                                     <div className="text-4xl font-black opacity-10 absolute bottom-1 left-1/2 -translate-x-1/2">3</div>
+                                 </div>
+                             </div>
+                         )}
                     </div>
                 )}
 
