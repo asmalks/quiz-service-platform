@@ -74,15 +74,17 @@ const QuizResults = () => {
 
       if (responsesError) throw responsesError;
 
-      const questionsData = responses.map((r: any) => {
-        return {
-          question_text: r.questions.question_text,
-          options: r.questions.options,
-          correct_answer: r.questions.correct_answer,
-          user_answer: r.answer,
-          is_correct: r.is_correct,
-        };
-      });
+      const questionsData = responses
+        .filter((r: any) => r.questions !== null)
+        .map((r: any) => {
+          return {
+            question_text: r.questions.question_text,
+            options: r.questions.options,
+            correct_answer: r.questions.correct_answer,
+            user_answer: r.answer,
+            is_correct: r.is_correct,
+          };
+        });
 
       const resultData = {
         participant,

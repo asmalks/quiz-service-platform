@@ -71,7 +71,7 @@ const Analytics = () => {
           const totalQuestions = quiz.questions?.length || 1;
 
           return {
-            quiz_title: quiz.title.substring(0, 20) + (quiz.title.length > 20 ? "..." : ""),
+            quiz_title: (quiz.title || "Untitled Quiz").substring(0, 20) + (quiz.title?.length > 20 ? "..." : ""),
             total_participants: participants.length,
             avg_score: participants.length > 0
               ? Math.round(
@@ -123,14 +123,14 @@ const Analytics = () => {
             const responses = q.responses || [];
             const correctCount = responses.filter((r) => r.is_correct).length;
             return {
-              question_text: q.question_text.substring(0, 30) + "...",
+              question_text: (q.question_text || "Missing Question").substring(0, 30) + "...",
               correct_rate: responses.length > 0
                 ? Math.round((correctCount / responses.length) * 100)
                 : 0,
               total_attempts: responses.length,
             };
           })
-          .filter((q) => q.total_attempts > 0)
+          .filter((q) => q && q.total_attempts > 0)
           .sort((a, b) => a.correct_rate - b.correct_rate);
 
         setQuestionDifficulty(difficulty);
