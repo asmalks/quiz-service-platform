@@ -24,6 +24,7 @@ interface ResultData {
   }>;
   totalQuestions: number;
   badgeText?: string;
+  quizTitle?: string;
 }
 
 const QuizResults = () => {
@@ -48,6 +49,7 @@ const QuizResults = () => {
           total_score, 
           total_time_taken,
           quizzes (
+            title,
             badge_text
           )
         `)
@@ -87,6 +89,7 @@ const QuizResults = () => {
         questions: questionsData,
         totalQuestions: questionsData.length,
         badgeText: (participant.quizzes as any)?.badge_text || "QQuiz",
+        quizTitle: (participant.quizzes as any)?.title || "Quiz",
       };
 
       setResults(resultData);
@@ -111,7 +114,7 @@ const QuizResults = () => {
 
   const handleShare = () => {
     if (results) {
-      const text = `I scored ${results.participant.total_score}/${results.totalQuestions} in ${results.badgeText}! 🎯\n\nTime taken: ${results.participant.total_time_taken}s\n\nJoin me: ${window.location.origin}`;
+      const text = `I scored ${results.participant.total_score}/${results.totalQuestions} in ${results.quizTitle}! 🎯\n\nTime taken: ${results.participant.total_time_taken}s\n\nJoin ${results.badgeText}: ${window.location.origin}`;
 
       if (navigator.share) {
         navigator.share({ text });
@@ -130,7 +133,7 @@ const QuizResults = () => {
       const percentage = (results.participant.total_score / results.totalQuestions) * 100;
       const emoji = percentage >= 80 ? "🏆" : percentage >= 60 ? "🌟" : "💪";
 
-      const text = `${emoji} I just completed ${results.badgeText}!\n\n` +
+      const text = `${emoji} I just completed ${results.quizTitle}!\n\n` +
         `📊 Score: ${results.participant.total_score}/${results.totalQuestions} (${percentage.toFixed(0)}%)\n` +
         `⏱️ Time: ${results.participant.total_time_taken}s\n\n` +
         `Check out the leaderboard: ${window.location.origin}/leaderboard/${quizId}\n\n` +

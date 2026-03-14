@@ -26,6 +26,7 @@ interface ResultData {
     }>;
     totalQuestions: number;
     badgeText?: string;
+    quizTitle?: string;
 }
 
 const ClientResults = () => {
@@ -52,6 +53,7 @@ const ClientResults = () => {
                     total_score, 
                     total_time_taken,
                     quizzes (
+                        title,
                         badge_text
                     )
                 `)
@@ -87,6 +89,7 @@ const ClientResults = () => {
                 questions: questionsWithAnswers,
                 totalQuestions: questions?.length || 0,
                 badgeText: (participant.quizzes as any)?.badge_text || theme?.badge_text || theme?.name || "QQuiz",
+                quizTitle: (participant.quizzes as any)?.title || "Quiz",
             });
 
             if (participant.total_score > 0) {
@@ -103,7 +106,7 @@ const ClientResults = () => {
 
     const handleShare = async () => {
         if (!result) return;
-        const text = `I scored ${result.participant.total_score}/${result.totalQuestions} on ${result.badgeText} quiz! 🎉`;
+        const text = `I scored ${result.participant.total_score}/${result.totalQuestions} on ${result.quizTitle}! 🎉\n\nJoin ${result.badgeText}: ${window.location.href}`;
         if (navigator.share) {
             try {
                 await navigator.share({ title: theme.name, text, url: window.location.href });
@@ -111,6 +114,22 @@ const ClientResults = () => {
         } else {
             navigator.clipboard.writeText(text);
             toast({ title: "Copied!", description: "Result text copied to clipboard" });
+        }
+    };
+
+    const handleWhatsAppShare = () => {
+        if (result) {
+            const accuracy = Math.round((result.participant.total_score / result.totalQuestions) * 100) || 0;
+            const emoji = accuracy >= 80 ? "🏆" : accuracy >= 60 ? "🌟" : "💪";
+
+            const text = `${emoji} I just completed ${result.quizTitle}!\n\n` +
+                `📊 Score: ${result.participant.total_score}/${result.totalQuestions} (${accuracy}%)\n` +
+                `⏱️ Time: ${result.participant.total_time_taken}s\n\n` +
+                `Check out the leaderboard: ${window.location.origin}/leaderboard/${clientSlug}/${quizId}\n\n` +
+                `Join ${result.badgeText} and test your knowledge: ${window.location.origin}/quiz/${clientSlug}/${quizId}`;
+
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(whatsappUrl, '_blank');
         }
     };
 
@@ -198,9 +217,17 @@ const ClientResults = () => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                            <Button
+                                onClick={handleWhatsAppShare}
+                                className="flex-1 h-14 rounded-xl text-white font-bold"
+                                style={{ backgroundColor: "#25D366" }}
+                            >
+                                <Share2 className="mr-2 h-5 w-5" />
+                                WhatsApp
+                            </Button>
                             <Button onClick={handleShare} variant="outline" size="lg" className="flex-1 h-14 rounded-xl border-2">
                                 <Share2 className="mr-2 h-5 w-5" />
-                                Share Results
+                                Share
                             </Button>
                             <Link to={`/leaderboard/${clientSlug}/${quizId}`} className="flex-1">
                                 <Button size="lg" className="w-full h-14 rounded-xl shadow-lg font-bold text-white hover:scale-[1.02] transition-transform"
