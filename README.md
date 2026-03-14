@@ -1,6 +1,6 @@
-# PSC BRO - Daily Quiz Competitions
+# QQuiz - Daily Quiz Competitions
 
-Master PSC Exams with daily quiz challenges, real-time leaderboards, and competitive learning. Join thousands of aspirants preparing for Kerala PSC exams.
+Conduct professional quizzes and competitions with live results, custom branding, and real-time leaderboards. Join thousands of users on QQuiz.
 
 ## Tech Stack
 

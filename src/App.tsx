@@ -75,7 +75,7 @@ const App = () => (
             <Route path="branding" element={<ClientBranding />} />
           </Route>
 
-          {/* Original PSC BRo quiz flow (unchanged) */}
+          {/* Public Quiz Flow */}
           <Route path="/quiz/:quizId" element={<QuizEntry />} />
           <Route path="/quiz/:quizId/take/:participantId" element={<QuizTake />} />
           <Route path="/quiz/:quizId/results/:participantId" element={<QuizResults />} />
